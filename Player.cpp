@@ -33,7 +33,6 @@
         setPos(x(), y() - velocityY);
         velocityY -= 1;
 
-        qDebug() << "Player Y:" << y() << " velocityY:" << velocityY;
 
         QList<QGraphicsItem*> colliding = collidingItems();
         for (QGraphicsItem* item : colliding) {
@@ -48,7 +47,6 @@
                 velocityY = 0;
                 jumpTimer->stop();
                 setPixmap(standingImage);
-                qDebug() << "LANDED ON PLATFORM";
                 return;
             }
         }
@@ -59,7 +57,6 @@
             velocityY = 0;
             jumpTimer->stop();
             setPixmap(standingImage);
-            qDebug() << "LANDED ON GROUND";
         }
 
         if (y() > 1000) {
@@ -68,7 +65,6 @@
             velocityY = 0;
             jumpTimer->stop();
             setPixmap(standingImage);
-            qDebug() << "FELL AND RESET TO GROUND";
         }
     });
 }
