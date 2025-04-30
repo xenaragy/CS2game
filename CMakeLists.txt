@@ -28,8 +28,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Level.h Level.cpp
         Player.h Player.cpp
         obstacle.h obstacle.cpp
-        display.h display.cpp
+
         waterdroplet.h waterdroplet.cpp
+        home.h home.cpp home.ui
 
 
     )

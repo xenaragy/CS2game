@@ -6,7 +6,9 @@
 #include <QPixmap>
 #include "obstacle.h"
 #include "waterdroplet.h"
+#include "home.h"
 #include <QGraphicsRectItem>
+#include <QPushButton>
 #include <QPen>
 
 
@@ -76,19 +78,19 @@ void MainWindow::setupGame()
     // Level Text
     levelText = new QLabel("Level: 1", this);
     levelText->setStyleSheet("color: black; font-weight: bold;");
-    levelText->move(600, 10);
-    levelText->resize(150, 30);
+    levelText->move(50, 30);
+    levelText->resize(250, 30);
 
     // Water Icon
     waterIcon = new QLabel(this);
-    waterIcon->setPixmap(QPixmap(":/Obstacles/waterdroplet.tiff").scaled(30, 30));
-    waterIcon->move(600, 50);
+    waterIcon->setPixmap(QPixmap(":/Obstacles/waterdroplet.png").scaled(30, 30));
+    waterIcon->move(175, 30);
     waterIcon->resize(30, 30);
 
     // Score Text
     scoreText = new QLabel("0/20", this);
     scoreText->setStyleSheet("color: black; font-weight: bold;");
-    scoreText->move(635, 50);
+    scoreText->move(200, 30);
     scoreText->resize(100, 30);
 
     // Update timer
@@ -107,6 +109,11 @@ void MainWindow::updateScore()
 {
     int collected = player->getCollectedDroplets();
     scoreText->setText(QString::number(collected) + "/20");
+
+    // If player collects 20 droplets, stop the game and show the portal
+    if (collected == 20) {
+        goToHome();
+    }
 }
 
 void MainWindow::updateGame()
@@ -115,35 +122,33 @@ void MainWindow::updateGame()
         level->resetLevel();
         return;
     }
-
     if (!player->hasFocus()) {
         player->setFocus();
     }
-
     const int scrollSpeed = 5;
 
     // Scroll left if player is at right boundary and moving right
     if (player->x() >= 600 && player->isMovingRight()) {
         bg1->moveBy(-scrollSpeed, 0);
         bg2->moveBy(-scrollSpeed, 0);
-
         if (bg1->x() + 800 <= 0) {
             bg1->setX(bg2->x() + 800);
         }
         if (bg2->x() + 800 <= 0) {
             bg2->setX(bg1->x() + 800);
         }
-
-        // Move other items (e.g., bricks, enemies, etc.) based on scroll
+        // Move other items (e.g., bricks, enemies, water droplets, etc.) based on scroll
         for (QGraphicsItem* item : scene->items()) {
-            if (item == player || item == bg1 || item == bg2) continue;
+            if (item == player || item == bg1 || item == bg2 ||
+                item == healthOutline || item == healthBar) continue;
+
+            // Move the item with the scroll
+            item->moveBy(-scrollSpeed, 0);
 
             // Check if item is off the screen to the left, and reposition it
             if (item->x() + item->boundingRect().width() < 0) {
                 item->setX(scene->sceneRect().width());
             }
-
-            item->moveBy(-scrollSpeed, 0);
         }
     }
 
@@ -151,38 +156,70 @@ void MainWindow::updateGame()
     if (player->x() <= 100 && player->isMovingLeft()) {
         bg1->moveBy(scrollSpeed, 0);
         bg2->moveBy(scrollSpeed, 0);
-
         if (bg1->x() >= 800) {
             bg1->setX(bg2->x() - 800);
         }
         if (bg2->x() >= 800) {
             bg2->setX(bg1->x() - 800);
         }
-
-        // Move other items (e.g., bricks, enemies, etc.) based on scroll
+        // Move other items (e.g., bricks, enemies, water droplets, etc.) based on scroll
         for (QGraphicsItem* item : scene->items()) {
-            if (item == player || item == bg1 || item == bg2) continue;
+            if (item == player || item == bg1 || item == bg2 ||
+                item == healthOutline || item == healthBar) continue;
+
+            // Move the item with the scroll
+            item->moveBy(scrollSpeed, 0);
 
             // Check if item is off the screen to the right, and reposition it
             if (item->x() > scene->sceneRect().width()) {
                 item->setX(0 - item->boundingRect().width());
             }
-
-            item->moveBy(scrollSpeed, 0);
         }
     }
+
+    // Check collisions with water droplets
+    for (QGraphicsItem* item : scene->items()) {
+        WaterDroplet* droplet = dynamic_cast<WaterDroplet*>(item);
+        if (droplet) {
+            droplet->checkCollision(player);
+        }
+    }
+
+    // Update UI elements
     int margin = 10;
     int viewRight = this->width();
     healthOutline->setPos(viewRight - 230, margin + 30);
     healthBar->setPos(viewRight - 230, margin + 30);
-
-
     updateHealthBar();
     updateScore();
-
 }
 
+void MainWindow::goToHome()
+{
+    // Hide in-game elements
+    player->setVisible(false);
+    for (QGraphicsItem* item : scene->items()) {
+        if (item != healthOutline && item != healthBar && item != bg1 && item != bg2 && item != player) {
+            item->setVisible(false);
+        }
+    }
 
+    levelText->hide();
+    scoreText->hide();
+    waterIcon->hide();
+
+    // Create portal button
+    QPushButton* portalButton = new QPushButton(this);
+    portalButton->setIcon(QIcon(":/backgrounds/portal.png"));
+    portalButton->setIconSize(QSize(300, 300));
+    portalButton->setFlat(true); // Remove border
+    portalButton->setGeometry(350, 200, 100, 100); // Position on screen
+    portalButton->show();
+
+    Home* homeWindow = new Home();  // Create a new Home screen
+    homeWindow->show();             // Show the home screen
+    this->close();
+}
 
 
 void MainWindow::keyPressEvent(QKeyEvent *event)

@@ -3,15 +3,27 @@
 
 #include <QObject>
 #include <QGraphicsPixmapItem>
-#include "Player.h"
+#include <QTimer>
+#include <QPainter>
+#include "player.h"
 
-                                          class WaterDroplet : public QObject, public QGraphicsPixmapItem
+// Multiple inheritance: QObject first, then QGraphicsPixmapItem
+class WaterDroplet : public QObject, public QGraphicsPixmapItem
 {
-    Q_OBJECT
+    Q_OBJECT  // Required macro for QObject classes
 
 public:
-    WaterDroplet(int x, int y);
+    WaterDroplet(int x, int y, QObject* parent = nullptr);
+    ~WaterDroplet();
+
     void checkCollision(Player* player);
+
+private:
+
+    QTimer* animationTimer;
+    int yOffset;
+    int yDirection;
+    bool m_isCollected;
 };
 
 #endif // WATERDROPLET_H

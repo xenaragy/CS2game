@@ -5,7 +5,8 @@
 #include <QGraphicsRectItem>
 #include <QDebug>
 
-             Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false), isAttacking(false), isRight(false), isLeft(false) {
+Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
+    isAttacking(false), isRight(false), isLeft(false) {
     QPixmap standingPixmap(":/Character/playerstanding.png");
     QPixmap runningRightPixmap(":/Character/runningright.png");
     QPixmap runningLeftPixmap(":/Character/runningleft.png");
@@ -29,10 +30,10 @@
 
     groundY = y();
 
+    // Fixed lambda capture to include all variables
     connect(jumpTimer, &QTimer::timeout, this, [this]() {
         setPos(x(), y() - velocityY);
         velocityY -= 1;
-
 
         QList<QGraphicsItem*> colliding = collidingItems();
         for (QGraphicsItem* item : colliding) {
@@ -104,6 +105,13 @@ void Player::attack() {
 void Player::setPosition(int x, int y) {
     setPos(x, y);
     groundY = y;
+
+    // Stop any active jump
+    if (jumpTimer->isActive()) {
+        isJumping = false;
+        velocityY = 0;
+        jumpTimer->stop();
+    }
 }
 
 void Player::takeDamage(int damage) {
@@ -149,4 +157,8 @@ void Player::incrementDroplets() {
 
 int Player::getCollectedDroplets() const {
     return dropletsCollected;
+}
+
+void Player::setDropletsCollected(int count) {
+    dropletsCollected = count;
 }

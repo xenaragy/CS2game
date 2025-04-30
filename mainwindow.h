@@ -43,6 +43,7 @@ private:
     void updateGame();
     void updateHealthBar();
     void updateScore();
+    void goToHome();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

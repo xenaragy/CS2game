@@ -8,7 +8,7 @@
 #include <QPixmap>
 #include <QTimer>
 
-           class Player : public QObject, public QGraphicsPixmapItem {
+class Player : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 
 public:
@@ -36,8 +36,9 @@ public:
     void collectDroplet();
     void incrementDroplets();
     int getCollectedDroplets() const;
-private:
+    void setDropletsCollected(int count);
 
+private:
     int health;
     int coins;
     bool isJumping;
@@ -45,10 +46,11 @@ private:
     bool isAttacking;
     bool isRight, isLeft;
     float totalDistanceMoved = 0.0f;
-    QTimer* jumpTimer;
+    QTimer* jumpTimer;        // Added jumpTimer declaration
     int velocityY;
     int groundY;
     int dropletsCollected = 0;
+
 
     QPixmap standingImage;
     QPixmap runningRightImage;
