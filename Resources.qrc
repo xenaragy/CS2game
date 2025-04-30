@@ -4,8 +4,9 @@
         <file>brownbricks.png</file>
         <file>brownbricks copy 2.png</file>
         <file>brownbricks copy.png</file>
-        <file>../portal.png</file>
-        <file>../homepage.jpeg</file>
+        <file>portal.png</file>
+       <file>homepage.jpeg</file>
+
     </qresource>
     <qresource prefix="/Obstacles">
         <file>firepit.png</file>
