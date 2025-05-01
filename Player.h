@@ -22,7 +22,12 @@ public:
     void attack();
 
     void setPosition(int x, int y);
+
     void takeDamage(int damage);
+
+    void takeDamagePercent(float percent);  // for percentage-based damage
+
+
     void heal(int healthPoints);
 
     int getHealth() const;
@@ -39,7 +44,9 @@ public:
     void setDropletsCollected(int count);
 
 private:
-    int health;
+
+    int health = 100;
+
     int coins;
     bool isJumping;
     bool isCrouching;
@@ -50,6 +57,10 @@ private:
     int velocityY;
     int groundY;
     int dropletsCollected = 0;
+
+
+
+    int maxHealth = 100;
 
 
     QPixmap standingImage;
