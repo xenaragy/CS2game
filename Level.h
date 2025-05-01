@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "waterdroplet.h"  // Added include for WaterDroplet
 
+
 class Level {
 private:
     QGraphicsScene* scene;                // Scene to hold level objects
@@ -21,7 +22,10 @@ private:
     const int screenWidth = 800;          // Screen width for layout purposes
 
 public:
+
     Level(int number, QGraphicsScene* scene, Player* p1);  // Constructor with level number, scene, and player
+
+
 
     void setupLevel();                                     // Setup level objects (obstacles, enemies, etc.)
     void addEnemy(QGraphicsItem* enemy);                   // Add enemy to the level
