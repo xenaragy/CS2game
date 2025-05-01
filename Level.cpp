@@ -6,10 +6,10 @@
 #include "waterdroplet.h"
 
 
-    Level::Level(int number, QGraphicsScene* scene, Player* p1)
+Level::Level(int number, QGraphicsScene* scene, Player* p1)
     : scene(scene), p1(p1), levelNumber(number)
-{
-}
+{}
+
 
 void Level::setupLevel()
 {
@@ -48,6 +48,7 @@ void Level::setupLevel()
         // Add platforms to the scene
         for (const QPoint& pos : platformPositions) {
             QGraphicsPixmapItem* platform = new QGraphicsPixmapItem(QPixmap(":/backgrounds/brownbricks.png").scaled(platformWidth, platformHeight));
+
             platform->setPos(pos);
             platform->setData(0, "platform");
             scene->addItem(platform);
@@ -102,9 +103,16 @@ void Level::resetLevel()
     p1->setPosition(50, groundY - 100);
 
     // Reset player's collected droplets count
+
     // Note: This assumes you might want to reset the count when resetting level
     // If you want droplets to accumulate across level resets, remove this line
     p1->setDropletsCollected(0);
+
+
+    // Ensure no duplication crash
+    scene->removeItem(p1);
+    scene->addItem(p1);
+
 
     // Remove and recreate level elements
     setupLevel();
