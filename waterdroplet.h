@@ -5,7 +5,9 @@
 #include <QGraphicsPixmapItem>
 #include <QTimer>
 #include <QPainter>
-#include "player.h"
+
+#include "Player.h"
+
 
 // Multiple inheritance: QObject first, then QGraphicsPixmapItem
 class WaterDroplet : public QObject, public QGraphicsPixmapItem
