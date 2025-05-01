@@ -21,7 +21,7 @@ void Level::setupLevel()
     obstacles.clear();
 
     // Create water droplets in the initial screens
-    for (int i = 0; i < 30; ++i) {
+    for (int i = 0; i < 20; ++i) {
         int x = 150 + i * 100;  // Regular spacing
         int y = 100 + (i % 3) * 80;  // Vary the height
         WaterDroplet* droplet = new WaterDroplet(x, y);

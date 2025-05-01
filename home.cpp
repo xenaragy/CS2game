@@ -39,7 +39,7 @@ void Home::setupUI()
 
 void Home::startLevel1()
 {
-    MainWindow* gameWindow = new MainWindow(); // Create MainWindow instance
-    gameWindow->show();                       // Show the MainWindow (game)
-    this->close();                            // Close the Home screen
+    this->hide();  // Instead of closing, just hide it
+    MainWindow* gameWindow = new MainWindow(this); // Pass this as parent
+    gameWindow->show();
 }

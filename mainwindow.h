@@ -31,22 +31,23 @@ private:
     Player *player;
     Level *level;
     QGraphicsRectItem* healthOutline;
-
     QLabel *healthLabel;
     QLabel *levelText;
     QLabel *scoreText;
     QLabel *waterIcon;
-
     QGraphicsRectItem *healthBar;
-
     void setupGame();
     void updateGame();
     void updateHealthBar();
     void updateScore();
-    void goToHome();
+    bool levelFinished = false;
+
+public slots:
+    void goToHome();   
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
+
 };
 #endif // MAINWINDOW_H

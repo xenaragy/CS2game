@@ -12,7 +12,7 @@
 #include <QPen>
 
 
-                 MainWindow::MainWindow(QWidget *parent)
+  MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -97,6 +97,8 @@ void MainWindow::setupGame()
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
+
+
 }
 
 void MainWindow::updateHealthBar()
@@ -107,12 +109,14 @@ void MainWindow::updateHealthBar()
 
 void MainWindow::updateScore()
 {
+    if (levelFinished) return;
+
     int collected = player->getCollectedDroplets();
     scoreText->setText(QString::number(collected) + "/20");
 
-    // If player collects 20 droplets, stop the game and show the portal
     if (collected == 20) {
-        goToHome();
+        levelFinished = true; // prevent further triggers
+        QTimer::singleShot(0, this, SLOT(goToHome()));
     }
 }
 
@@ -148,31 +152,6 @@ void MainWindow::updateGame()
             // Check if item is off the screen to the left, and reposition it
             if (item->x() + item->boundingRect().width() < 0) {
                 item->setX(scene->sceneRect().width());
-            }
-        }
-    }
-
-    // Scroll right if player is at left boundary and moving left
-    if (player->x() <= 100 && player->isMovingLeft()) {
-        bg1->moveBy(scrollSpeed, 0);
-        bg2->moveBy(scrollSpeed, 0);
-        if (bg1->x() >= 800) {
-            bg1->setX(bg2->x() - 800);
-        }
-        if (bg2->x() >= 800) {
-            bg2->setX(bg1->x() - 800);
-        }
-        // Move other items (e.g., bricks, enemies, water droplets, etc.) based on scroll
-        for (QGraphicsItem* item : scene->items()) {
-            if (item == player || item == bg1 || item == bg2 ||
-                item == healthOutline || item == healthBar) continue;
-
-            // Move the item with the scroll
-            item->moveBy(scrollSpeed, 0);
-
-            // Check if item is off the screen to the right, and reposition it
-            if (item->x() > scene->sceneRect().width()) {
-                item->setX(0 - item->boundingRect().width());
             }
         }
     }
@@ -213,11 +192,11 @@ void MainWindow::goToHome()
     portalButton->setIcon(QIcon(":/backgrounds/portal.png"));
     portalButton->setIconSize(QSize(300, 300));
     portalButton->setFlat(true); // Remove border
-    portalButton->setGeometry(350, 200, 100, 100); // Position on screen
+    portalButton->setGeometry(350, 200, 100, 100);
     portalButton->show();
 
-    Home* homeWindow = new Home();  // Create a new Home screen
-    homeWindow->show();             // Show the home screen
+    Home* homeWindow = new Home();
+    homeWindow->show();
     this->close();
 }
 
