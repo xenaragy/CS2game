@@ -7,7 +7,10 @@
 #include "Player.h"
 #include "Level.h"
 
-             class Obstacle : public QGraphicsPixmapItem {
+
+
+ class Obstacle : public QGraphicsPixmapItem {
+
 public:
     enum class ObstacleType { Platform, Hazard, Moving };
 
@@ -48,11 +51,13 @@ public:
 };
 
 class Quicksand : public Obstacle {
+
 public:
     Quicksand(int x, int y);
     void handleCollision(Player* player) override;
 
     void setLevel(Level* level);  // Declare setLevel method
+
 
 private:
     Level* level;  // Store the reference to Level object
