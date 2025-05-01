@@ -10,6 +10,7 @@
 #include <QGraphicsRectItem>
 #include <QPushButton>
 #include <QPen>
+#include <QTimer>
 
 
   MainWindow::MainWindow(QWidget *parent)
@@ -61,6 +62,11 @@ void MainWindow::setupGame()
     level = new Level(1, scene, player);
     level->setupLevel();
 
+
+    int margin = 10;
+    int viewRight = this->width();
+
+
     // Health bar outline
     healthOutline = new QGraphicsRectItem(0, 0, 200, 20); // Fixed size
     healthOutline->setPen(QPen(Qt::black));              // Black border
@@ -72,6 +78,10 @@ void MainWindow::setupGame()
     healthBar->setBrush(Qt::green);                      // Green fill
     healthBar->setPen(Qt::NoPen);                        // No border
     scene->addItem(healthBar);
+
+
+    healthOutline->setPos(viewRight - 210, margin + 30);
+    healthBar->setPos(viewRight - 210, margin + 30);
 
 
 
@@ -101,11 +111,51 @@ void MainWindow::setupGame()
 
 }
 
-void MainWindow::updateHealthBar()
-{
+
+
+
+void MainWindow::updateHealthBar() {
     int hp = player->getHealth();
-    healthBar->setRect(0, 0, 2 * hp, 20);  // Shrink width based on health
+    healthBar->setRect(0, 0, 2 * hp, 20);  // Adjust width based on health
+
+    for (QGraphicsItem* item : scene->items()) {
+        Obstacle* obs = dynamic_cast<Obstacle*>(item);
+        if (obs) {
+            obs->handleCollision(player);
+        }
+    }
+
+    if (player->getHealth() <= 0) {
+        showGameOver();
+        level->resetLevel();
+        return;
+    }
+
+
+
 }
+
+
+void MainWindow::showGameOver() {
+    QGraphicsTextItem* gameOver = scene->addText("GAME OVER");
+    gameOver->setDefaultTextColor(Qt::red);
+    QFont font = gameOver->font();
+    font.setPointSize(30);
+    font.setBold(true);
+    gameOver->setFont(font);
+    gameOver->setPos(width()/2 - 100, height()/2 - 50);
+
+    // Hide the message after 1 second
+    QTimer::singleShot(1000, [this, gameOver]() {
+        scene->removeItem(gameOver);
+        delete gameOver;
+        level->resetLevel();  // Restart safely after message disappears
+    });
+}
+
+
+
+
 
 void MainWindow::updateScore()
 {
@@ -129,6 +179,14 @@ void MainWindow::updateGame()
     if (!player->hasFocus()) {
         player->setFocus();
     }
+
+
+    if (player->getHealth() <= 0) {
+        showGameOver();   // Your function to show "Game Over"
+        level->resetLevel();  // Restart level
+    }
+
+
     const int scrollSpeed = 5;
 
     // Scroll left if player is at right boundary and moving right
@@ -141,6 +199,20 @@ void MainWindow::updateGame()
         if (bg2->x() + 800 <= 0) {
             bg2->setX(bg1->x() + 800);
         }
+
+
+        // Check cactus and quicksand collisions
+        for (QGraphicsItem* item : scene->items()) {
+            Obstacle* obs = dynamic_cast<Obstacle*>(item);
+            if (obs) {
+                obs->handleCollision(player);
+            }
+        }
+
+        //  Call this after all collisions are handled
+        updateHealthBar();
+
+
         // Move other items (e.g., bricks, enemies, water droplets, etc.) based on scroll
         for (QGraphicsItem* item : scene->items()) {
             if (item == player || item == bg1 || item == bg2 ||
