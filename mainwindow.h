@@ -42,6 +42,8 @@ private:
     void updateScore();
     bool levelFinished = false;
 
+    void showGameOver();
+
 public slots:
     void goToHome();   
 
