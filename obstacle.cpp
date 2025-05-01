@@ -54,7 +54,11 @@ void Fire::handleCollision(Player* player) {
     QList<QGraphicsItem*> collidingItemsList = collidingItems();  // Call collidingItems as a function
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player) {
+
             player->takeDamage(10);  // Fire damages the player by 10
+
+            player->takeDamagePercent(0.10f);  // Fire damages the player by 10
+
         }
     }
 }
@@ -67,7 +71,11 @@ void Cactus::handleCollision(Player* player) {
     QList<QGraphicsItem*> collidingItemsList = collidingItems();  // Call collidingItems as a function
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player) {
+
             player->takeDamage(20);  // Cactus damages the player by 20
+
+          player->takeDamagePercent(0.05f); // Cactus damages the player by 5
+
         }
     }
 }
@@ -76,15 +84,20 @@ Quicksand::Quicksand(int x, int y)
     : Obstacle(QPixmap(":/Obstacles/quicksand.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 0)
 {}
 
+
 void Quicksand::handleCollision(Player* player) {
     QList<QGraphicsItem*> collidingItemsList = collidingItems();  // Call collidingItems as a function
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player) {
+            player->takeDamagePercent(0.05f);
             // Reset the level when player collides with quicksand
             level->resetLevel();
         }
     }
 }
+
+
+
 void Quicksand::setLevel(Level* l) {
     level = l;  // Set the level pointer
 }
