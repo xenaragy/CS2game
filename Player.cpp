@@ -13,6 +13,9 @@ Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
     QPixmap crouchPixmap(":/Character/playercrouch.png");
     QPixmap attackPixmap(":/Character/playersword.png");
 
+
+    health = maxHealth;
+
     int width = 150;
     int height = 200;
     standingImage = standingPixmap.scaled(width, height, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -114,19 +117,37 @@ void Player::setPosition(int x, int y) {
     }
 }
 
+
 void Player::takeDamage(int damage) {
     health -= damage;
     if (health < 0) health = 0;
 }
+
+
+
+
+void Player::takeDamagePercent(float percent)
+{
+    int dmg = static_cast<int>(percent * 100);
+    health -= dmg;
+    if (health < 0) health = 0;
+}
+
+
+
 
 void Player::heal(int healthPoints) {
     health += healthPoints;
     if (health > 100) health = 100;
 }
 
+
 int Player::getHealth() const {
     return health;
 }
+
+
+
 
 void Player::setHealth(int h) {
     health = h;
@@ -154,6 +175,7 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
 void Player::incrementDroplets() {
     dropletsCollected++;
 }
+
 
 int Player::getCollectedDroplets() const {
     return dropletsCollected;
