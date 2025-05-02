@@ -8,11 +8,9 @@
 
 #include "Player.h"
 
-
-// Multiple inheritance: QObject first, then QGraphicsPixmapItem
 class WaterDroplet : public QObject, public QGraphicsPixmapItem
 {
-    Q_OBJECT  // Required macro for QObject classes
+    Q_OBJECT
 
 public:
     WaterDroplet(int x, int y, QObject* parent = nullptr);
@@ -21,7 +19,6 @@ public:
     void checkCollision(Player* player);
 
 private:
-
     QTimer* animationTimer;
     int yOffset;
     int yDirection;

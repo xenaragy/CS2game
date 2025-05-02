@@ -5,6 +5,7 @@
 #include <QGraphicsRectItem>
 #include <QDebug>
 
+
 Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
     isAttacking(false), isRight(false), isLeft(false) {
     QPixmap standingPixmap(":/Character/playerstanding.png");
@@ -32,8 +33,6 @@ Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
     jumpTimer = new QTimer(this);
 
     groundY = y();
-
-    // Fixed lambda capture to include all variables
     connect(jumpTimer, &QTimer::timeout, this, [this]() {
         setPos(x(), y() - velocityY);
         velocityY -= 1;
@@ -108,8 +107,6 @@ void Player::attack() {
 void Player::setPosition(int x, int y) {
     setPos(x, y);
     groundY = y;
-
-    // Stop any active jump
     if (jumpTimer->isActive()) {
         isJumping = false;
         velocityY = 0;
@@ -123,17 +120,12 @@ void Player::takeDamage(int damage) {
     if (health < 0) health = 0;
 }
 
-
-
-
 void Player::takeDamagePercent(float percent)
 {
     int dmg = static_cast<int>(percent * 100);
     health -= dmg;
     if (health < 0) health = 0;
 }
-
-
 
 
 void Player::heal(int healthPoints) {
@@ -145,9 +137,6 @@ void Player::heal(int healthPoints) {
 int Player::getHealth() const {
     return health;
 }
-
-
-
 
 void Player::setHealth(int h) {
     health = h;
@@ -176,11 +165,28 @@ void Player::incrementDroplets() {
     dropletsCollected++;
 }
 
-
 int Player::getCollectedDroplets() const {
     return dropletsCollected;
 }
 
 void Player::setDropletsCollected(int count) {
     dropletsCollected = count;
+}
+
+bool Player::canTakeDamage(int cooldownMs) {
+    if (!damageTimer.isValid()) {
+        damageTimer.start();
+        return true;
+    }
+
+    if (damageTimer.elapsed() >= cooldownMs) {
+        damageTimer.restart();
+        return true;
+    }
+
+    return false;
+}
+
+void Player::resetDroplets() {
+    dropletsCollected = 0;
 }

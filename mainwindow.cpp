@@ -11,14 +11,14 @@
 #include <QPushButton>
 #include <QPen>
 #include <QTimer>
-
+#include "Level.h"
+#include "home.h"
 
   MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     setupGame();
-
     setWindowTitle("Desert Adventure Game");
     setFixedSize(800, 600);
 }
@@ -61,78 +61,57 @@ void MainWindow::setupGame()
 
     level = new Level(1, scene, player);
     level->setupLevel();
-
-
     int margin = 10;
     int viewRight = this->width();
 
-
-    // Health bar outline
-    healthOutline = new QGraphicsRectItem(0, 0, 200, 20); // Fixed size
-    healthOutline->setPen(QPen(Qt::black));              // Black border
-    healthOutline->setBrush(Qt::NoBrush);                // Transparent inside
+    healthOutline = new QGraphicsRectItem(0, 0, 200, 20);
+    healthOutline->setPen(QPen(Qt::black));
+    healthOutline->setBrush(Qt::NoBrush);
     scene->addItem(healthOutline);
 
-    // Health bar fill (green inside)
-    healthBar = new QGraphicsRectItem(0, 0, 200, 20);     // Same size initially
-    healthBar->setBrush(Qt::green);                      // Green fill
-    healthBar->setPen(Qt::NoPen);                        // No border
+    healthBar = new QGraphicsRectItem(0, 0, 200, 20);
+    healthBar->setBrush(Qt::green);
+    healthBar->setPen(Qt::NoPen);
     scene->addItem(healthBar);
-
-
     healthOutline->setPos(viewRight - 210, margin + 30);
     healthBar->setPos(viewRight - 210, margin + 30);
 
-
-
-    // Level Text
     levelText = new QLabel("Level: 1", this);
     levelText->setStyleSheet("color: black; font-weight: bold;");
     levelText->move(50, 30);
     levelText->resize(250, 30);
 
-    // Water Icon
     waterIcon = new QLabel(this);
     waterIcon->setPixmap(QPixmap(":/Obstacles/waterdroplet.png").scaled(30, 30));
     waterIcon->move(175, 30);
     waterIcon->resize(30, 30);
 
-    // Score Text
     scoreText = new QLabel("0/20", this);
     scoreText->setStyleSheet("color: black; font-weight: bold;");
     scoreText->move(200, 30);
     scoreText->resize(100, 30);
 
-    // Update timer
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
 
-
 }
-
-
 
 
 void MainWindow::updateHealthBar() {
     int hp = player->getHealth();
-    healthBar->setRect(0, 0, 2 * hp, 20);  // Adjust width based on health
-
+    healthBar->setRect(0, 0, 2 * hp, 20);
     for (QGraphicsItem* item : scene->items()) {
         Obstacle* obs = dynamic_cast<Obstacle*>(item);
         if (obs) {
             obs->handleCollision(player);
         }
     }
-
     if (player->getHealth() <= 0) {
         showGameOver();
         level->resetLevel();
         return;
     }
-
-
-
 }
 
 
@@ -144,28 +123,20 @@ void MainWindow::showGameOver() {
     font.setBold(true);
     gameOver->setFont(font);
     gameOver->setPos(width()/2 - 100, height()/2 - 50);
-
-    // Hide the message after 1 second
     QTimer::singleShot(1000, [this, gameOver]() {
         scene->removeItem(gameOver);
         delete gameOver;
-        level->resetLevel();  // Restart safely after message disappears
+        level->resetLevel();
     });
 }
 
 
-
-
-
-void MainWindow::updateScore()
-{
+void MainWindow::updateScore() {
     if (levelFinished) return;
-
     int collected = player->getCollectedDroplets();
     scoreText->setText(QString::number(collected) + "/20");
-
     if (collected == 20) {
-        levelFinished = true; // prevent further triggers
+        levelFinished = true;
         QTimer::singleShot(0, this, SLOT(goToHome()));
     }
 }
@@ -174,22 +145,19 @@ void MainWindow::updateGame()
 {
     if (player->y() > 600) {
         level->resetLevel();
+        resetGameState();
         return;
     }
     if (!player->hasFocus()) {
         player->setFocus();
     }
 
-
     if (player->getHealth() <= 0) {
-        showGameOver();   // Your function to show "Game Over"
-        level->resetLevel();  // Restart level
+        showGameOver();
+        level->resetLevel();
+        resetGameState();
     }
-
-
     const int scrollSpeed = 5;
-
-    // Scroll left if player is at right boundary and moving right
     if (player->x() >= 600 && player->isMovingRight()) {
         bg1->moveBy(-scrollSpeed, 0);
         bg2->moveBy(-scrollSpeed, 0);
@@ -200,35 +168,23 @@ void MainWindow::updateGame()
             bg2->setX(bg1->x() + 800);
         }
 
-
-        // Check cactus and quicksand collisions
         for (QGraphicsItem* item : scene->items()) {
             Obstacle* obs = dynamic_cast<Obstacle*>(item);
             if (obs) {
                 obs->handleCollision(player);
             }
         }
-
-        //  Call this after all collisions are handled
         updateHealthBar();
 
-
-        // Move other items (e.g., bricks, enemies, water droplets, etc.) based on scroll
         for (QGraphicsItem* item : scene->items()) {
             if (item == player || item == bg1 || item == bg2 ||
                 item == healthOutline || item == healthBar) continue;
-
-            // Move the item with the scroll
             item->moveBy(-scrollSpeed, 0);
-
-            // Check if item is off the screen to the left, and reposition it
             if (item->x() + item->boundingRect().width() < 0) {
                 item->setX(scene->sceneRect().width());
             }
         }
     }
-
-    // Check collisions with water droplets
     for (QGraphicsItem* item : scene->items()) {
         WaterDroplet* droplet = dynamic_cast<WaterDroplet*>(item);
         if (droplet) {
@@ -236,7 +192,6 @@ void MainWindow::updateGame()
         }
     }
 
-    // Update UI elements
     int margin = 10;
     int viewRight = this->width();
     healthOutline->setPos(viewRight - 230, margin + 30);
@@ -247,7 +202,6 @@ void MainWindow::updateGame()
 
 void MainWindow::goToHome()
 {
-    // Hide in-game elements
     player->setVisible(false);
     for (QGraphicsItem* item : scene->items()) {
         if (item != healthOutline && item != healthBar && item != bg1 && item != bg2 && item != player) {
@@ -258,8 +212,6 @@ void MainWindow::goToHome()
     levelText->hide();
     scoreText->hide();
     waterIcon->hide();
-
-    // Create portal button
     QPushButton* portalButton = new QPushButton(this);
     portalButton->setIcon(QIcon(":/backgrounds/portal.png"));
     portalButton->setIconSize(QSize(300, 300));
@@ -273,19 +225,28 @@ void MainWindow::goToHome()
 }
 
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    player->keyPressEvent(event);
-    if (event->key() == Qt::Key_R) {
-        level->resetLevel();
-    } else if (event->key() == Qt::Key_N) {
-        level->nextLevel();
-    }
-    QMainWindow::keyPressEvent(event);
+void MainWindow::resetGameState() {
+    levelFinished = false;
+    player->resetDroplets();
+    scoreText->setText("0/20");
+    level->resetLevel();
 }
 
-void MainWindow::keyReleaseEvent(QKeyEvent *event)
-{
-    player->keyReleaseEvent(event);
-    QMainWindow::keyReleaseEvent(event);
-}
+
+
+// void MainWindow::keyPressEvent(QKeyEvent *event)
+// {
+//     // player->keyPressEvent(event);
+//     // if (event->key() == Qt::Key_R) {
+//     //     level->resetLevel();
+//     // } else if (event->key() == Qt::Key_N) {
+//     //     level->nextLevel();
+//     // }
+//     QMainWindow::keyPressEvent(event);
+// }
+
+// void MainWindow::keyReleaseEvent(QKeyEvent *event)
+// {
+//     player->keyReleaseEvent(event);
+//     QMainWindow::keyReleaseEvent(event);
+// }

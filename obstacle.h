@@ -13,29 +13,21 @@
 
 public:
     enum class ObstacleType { Platform, Hazard, Moving };
-
     Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage = 0, bool isMovable = false);
-
-    // Setters and getters for obstacle properties
-    void setType(ObstacleType type);
+  //  void setType(ObstacleType type);
     ObstacleType getType() const;
-
     void setDamage(int damage);
     int getDamage() const;
-
     void setMovable(bool isMovable);
     bool isMovable() const;
-
-    void move(); // For moving obstacles
-
-    // Handles collisions with the player
-    virtual void handleCollision(Player* player);
+    //void move();
+    virtual void handleCollision(Player* player) = 0;
 
 private:
     ObstacleType obstacleType;
     int damage;
-    bool movable;  // Whether the obstacle is movable
-    int speed; // Speed for moving obstacles (e.g., left-right)
+    bool movable;
+    int speed;
 };
 
 class Fire : public Obstacle {
@@ -55,12 +47,10 @@ class Quicksand : public Obstacle {
 public:
     Quicksand(int x, int y);
     void handleCollision(Player* player) override;
-
-    void setLevel(Level* level);  // Declare setLevel method
-
+    void setLevel(Level* level);
 
 private:
-    Level* level;  // Store the reference to Level object
+    Level* level;
 };
 
 

@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QPixmap>
 #include <QTimer>
+#include <QElapsedTimer>
 
 class Player : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
@@ -14,60 +15,46 @@ class Player : public QObject, public QGraphicsPixmapItem {
 public:
     Player();
     ~Player();
-
     void moveForward();
     void moveBackward();
     void jump();
     void crouch();
     void attack();
-
     void setPosition(int x, int y);
-
     void takeDamage(int damage);
-
-    void takeDamagePercent(float percent);  // for percentage-based damage
-
-
+    void takeDamagePercent(float percent);
     void heal(int healthPoints);
-
     int getHealth() const;
     void setHealth(int health);
-
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
-
     bool isMovingRight() const { return isRight; }
     bool isMovingLeft() const { return isLeft; }
     void collectDroplet();
     void incrementDroplets();
     int getCollectedDroplets() const;
     void setDropletsCollected(int count);
-
+    bool canTakeDamage(int cooldownMs = 1000);
+    void resetDroplets();
 private:
-
     int health = 100;
-
     int coins;
     bool isJumping;
     bool isCrouching;
     bool isAttacking;
     bool isRight, isLeft;
     float totalDistanceMoved = 0.0f;
-    QTimer* jumpTimer;        // Added jumpTimer declaration
+    QTimer* jumpTimer;
     int velocityY;
     int groundY;
     int dropletsCollected = 0;
-
-
-
     int maxHealth = 100;
-
-
     QPixmap standingImage;
     QPixmap runningRightImage;
     QPixmap runningLeftImage;
     QPixmap crouchImage;
     QPixmap attackImage;
+    QElapsedTimer damageTimer;
 };
 
 #endif
