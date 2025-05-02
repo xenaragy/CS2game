@@ -215,7 +215,7 @@ void MainWindow::goToHome()
     QPushButton* portalButton = new QPushButton(this);
     portalButton->setIcon(QIcon(":/backgrounds/portal.png"));
     portalButton->setIconSize(QSize(300, 300));
-    portalButton->setFlat(true); // Remove border
+    portalButton->setFlat(true);
     portalButton->setGeometry(350, 200, 100, 100);
     portalButton->show();
 

@@ -36,6 +36,10 @@ public:
     void setDropletsCollected(int count);
     bool canTakeDamage(int cooldownMs = 1000);
     void resetDroplets();
+    void applyGravity();
+    QTimer* gravityTimer;
+    bool isOnGround;
+    float gravity = 1.0f;
 private:
     int health = 100;
     int coins;

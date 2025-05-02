@@ -7,7 +7,8 @@
 #include "Player.h"
 #include "waterdroplet.h"
 
-class Level {
+class Level : public QObject{
+        Q_OBJECT
 private:
     QGraphicsScene* scene;
     QVector<QGraphicsItem*> obstacles;

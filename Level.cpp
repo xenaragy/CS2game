@@ -5,6 +5,8 @@
 #include <QRandomGenerator>
 #include "waterdroplet.h"
 #include "mainwindow.h"
+#include <QTimer>
+
 
 Level::Level(int number, QGraphicsScene* scene, Player* p1)
     : scene(scene), p1(p1), levelNumber(number) {}
@@ -18,7 +20,7 @@ void Level::setupLevel()
         }
     }
 
-    for (int i = 0; i < 25; ++i) {
+    for (int i = 0; i < 30; ++i) {
         int x = 150 + i * 100;
         int y = 100 + (i % 3) * 80;
         WaterDroplet* droplet = new WaterDroplet(x, y);
@@ -105,4 +107,5 @@ int Level::getLevelNumber() const
 {
     return levelNumber;
 }
+
 

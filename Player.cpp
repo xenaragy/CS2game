@@ -7,13 +7,12 @@
 
 
 Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
-    isAttacking(false), isRight(false), isLeft(false) {
+    isAttacking(false), isRight(false), isLeft(false), isOnGround(true) {
     QPixmap standingPixmap(":/Character/playerstanding.png");
     QPixmap runningRightPixmap(":/Character/runningright.png");
     QPixmap runningLeftPixmap(":/Character/runningleft.png");
     QPixmap crouchPixmap(":/Character/playercrouch.png");
     QPixmap attackPixmap(":/Character/playersword.png");
-
 
     health = maxHealth;
 
@@ -31,45 +30,18 @@ Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
 
     velocityY = 0;
     jumpTimer = new QTimer(this);
-
     groundY = y();
+
     connect(jumpTimer, &QTimer::timeout, this, [this]() {
         setPos(x(), y() - velocityY);
         velocityY -= 1;
-
-        QList<QGraphicsItem*> colliding = collidingItems();
-        for (QGraphicsItem* item : colliding) {
-            if (item == this) continue;
-
-            if (item->data(0) == "platform" &&
-                velocityY < 0 &&
-                y() + boundingRect().height() >= item->y()) {
-
-                setY(item->y() - boundingRect().height());
-                isJumping = false;
-                velocityY = 0;
-                jumpTimer->stop();
-                setPixmap(standingImage);
-                return;
-            }
-        }
-
-        if (velocityY < 0 && y() >= groundY) {
-            setY(groundY);
-            isJumping = false;
-            velocityY = 0;
+        if (velocityY <= 0) {
             jumpTimer->stop();
-            setPixmap(standingImage);
-        }
-
-        if (y() > 1000) {
-            setY(groundY);
-            isJumping = false;
-            velocityY = 0;
-            jumpTimer->stop();
-            setPixmap(standingImage);
         }
     });
+    gravityTimer = new QTimer(this);
+    connect(gravityTimer, &QTimer::timeout, this, &Player::applyGravity);
+    gravityTimer->start(25);
 }
 
 Player::~Player() {}
@@ -87,8 +59,9 @@ void Player::moveBackward() {
 }
 
 void Player::jump() {
-    if (!isJumping) {
+    if (isOnGround) {
         isJumping = true;
+        isOnGround = false;
         velocityY = 15;
         jumpTimer->start(20);
     }
@@ -107,13 +80,14 @@ void Player::attack() {
 void Player::setPosition(int x, int y) {
     setPos(x, y);
     groundY = y;
+    isOnGround = true;
+    velocityY = 0;
+
     if (jumpTimer->isActive()) {
         isJumping = false;
-        velocityY = 0;
         jumpTimer->stop();
     }
 }
-
 
 void Player::takeDamage(int damage) {
     health -= damage;
@@ -190,3 +164,63 @@ bool Player::canTakeDamage(int cooldownMs) {
 void Player::resetDroplets() {
     dropletsCollected = 0;
 }
+
+void Player::applyGravity() {
+    if (jumpTimer->isActive()) {
+        return;
+    }
+
+    if (isOnGround) {
+        bool stillOnPlatform = false;
+        if (y() == groundY) {
+            stillOnPlatform = true;
+        } else {
+            QList<QGraphicsItem*> colliding = collidingItems();
+            for (QGraphicsItem* item : colliding) {
+                if (item == this) continue;
+                if (item->data(0) == "platform") {
+                    stillOnPlatform = true;
+                    break;
+                }
+            }
+        }
+
+        if (!stillOnPlatform) {
+            isOnGround = false;
+            velocityY = 0;
+        } else {
+            return;
+        }
+    }
+
+
+    velocityY += gravity;
+    if (velocityY > 15) velocityY = 15;
+    setPos(x(), y() + velocityY);
+
+    QList<QGraphicsItem*> colliding = collidingItems();
+    for (QGraphicsItem* item : colliding) {
+        if (item == this) continue;
+
+        if (item->data(0) == "platform" && velocityY > 0 && y() + boundingRect().height() >= item->y() - 2) {
+            setY(item->y() - boundingRect().height());
+            isOnGround = true;
+            velocityY = 0;
+            return;
+        }
+    }
+
+    if (y() >= groundY) {
+        setY(groundY);
+        isOnGround = true;
+        velocityY = 0;
+    }
+
+    if (y() > 1000) {
+        setY(groundY);
+        isOnGround = true;
+        velocityY = 0;
+    }
+}
+
+
