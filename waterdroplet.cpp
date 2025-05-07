@@ -19,9 +19,12 @@ WaterDroplet::~WaterDroplet()
 
 void WaterDroplet::checkCollision(Player* player)
 {
+    if (m_isCollected) return;  // Skip if already collected
+
     QList<QGraphicsItem*> collidingItemsList = collidingItems();
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player) {
+            // Mark as collected and increment the player's count
             player->incrementDroplets();
             scene()->removeItem(this);
             delete this;
@@ -29,4 +32,3 @@ void WaterDroplet::checkCollision(Player* player)
         }
     }
 }
-

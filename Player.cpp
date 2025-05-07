@@ -6,8 +6,9 @@
 #include <QDebug>
 
 
+
 Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
-    isAttacking(false), isRight(false), isLeft(false), isOnGround(true) {
+    attacking(false), isRight(false), isLeft(false), isOnGround(true) {
     QPixmap standingPixmap(":/Character/playerstanding.png");
     QPixmap runningRightPixmap(":/Character/runningright.png");
     QPixmap runningLeftPixmap(":/Character/runningleft.png");
@@ -73,8 +74,13 @@ void Player::crouch() {
 }
 
 void Player::attack() {
-    isAttacking = true;
+    attacking = true; // Use 'attacking' instead of 'isAttacking'
     setPixmap(attackImage);
+
+    QTimer::singleShot(500, this, [this]() {
+        attacking = false; // Also here
+        setPixmap(standingImage);
+    });
 }
 
 void Player::setPosition(int x, int y) {
@@ -128,7 +134,7 @@ void Player::keyReleaseEvent(QKeyEvent* event) {
     if (event->key() == Qt::Key_Down || event->key() == Qt::Key_A ||
         event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
         isCrouching = false;
-        isAttacking = false;
+        attacking = false;
         isRight = false;
         isLeft = false;
         setPixmap(standingImage);
@@ -161,23 +167,39 @@ bool Player::canTakeDamage(int cooldownMs) {
     return false;
 }
 
+
+void Player::incrementApples() {
+    collectedApples++;
+}
+
+int Player::getCollectedApples() const {
+    return collectedApples;
+}
+
 void Player::resetDroplets() {
     dropletsCollected = 0;
 }
 
 void Player::applyGravity() {
+    // Don't apply gravity if we're in the middle of a jump
     if (jumpTimer->isActive()) {
         return;
     }
 
+    // Check if we're on solid ground
     if (isOnGround) {
         bool stillOnPlatform = false;
+
+        // If we're at the ground level, we're definitely on solid ground
         if (y() == groundY) {
             stillOnPlatform = true;
         } else {
+            // Otherwise, check if we're on a platform
             QList<QGraphicsItem*> colliding = collidingItems();
             for (QGraphicsItem* item : colliding) {
-                if (item == this) continue;
+                if (item == this) continue;  // Skip self-collision
+
+                // Check for platform data tag
                 if (item->data(0) == "platform") {
                     stillOnPlatform = true;
                     break;
@@ -185,19 +207,22 @@ void Player::applyGravity() {
             }
         }
 
+        // If we're not on anything solid, start falling
         if (!stillOnPlatform) {
             isOnGround = false;
             velocityY = 0;
         } else {
+            // We're on solid ground, no need to apply gravity
             return;
         }
     }
 
-
+    // Apply gravity if we're not on ground
     velocityY += gravity;
-    if (velocityY > 15) velocityY = 15;
+    if (velocityY > 15) velocityY = 15;  // Terminal velocity cap
     setPos(x(), y() + velocityY);
 
+    // Check if we've landed on a platform
     QList<QGraphicsItem*> colliding = collidingItems();
     for (QGraphicsItem* item : colliding) {
         if (item == this) continue;
@@ -210,17 +235,35 @@ void Player::applyGravity() {
         }
     }
 
+    // Check if we've hit the ground level
     if (y() >= groundY) {
         setY(groundY);
         isOnGround = true;
         velocityY = 0;
     }
 
+    // Safety check - if we fall too far, reset position
     if (y() > 1000) {
         setY(groundY);
         isOnGround = true;
         velocityY = 0;
     }
 }
+void Player::resetPlayer() {
+    // Reset movement states
+    isJumping = false;
+    isCrouching = false;
+    attacking = false;
+    isRight = false;
+    isLeft = false;
+    isOnGround = true;
 
+    // Reset velocity and position
+    velocityY = 0;
+    setPos(100, 400);  // Reset to the initial starting position for Level 2
+
+    // Reset health and collected items if necessary
+    health = 100;  // Or your max health value
+    collectedApples = 0;  // Or reset other variables related to the game
+}
 

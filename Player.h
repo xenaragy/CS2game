@@ -40,12 +40,16 @@ public:
     QTimer* gravityTimer;
     bool isOnGround;
     float gravity = 1.0f;
+    void incrementApples();
+    int getCollectedApples() const;
+    void resetPlayer();
+    bool isAttacking() { return attacking; }
 private:
     int health = 100;
     int coins;
     bool isJumping;
     bool isCrouching;
-    bool isAttacking;
+    bool attacking;
     bool isRight, isLeft;
     float totalDistanceMoved = 0.0f;
     QTimer* jumpTimer;
@@ -59,6 +63,8 @@ private:
     QPixmap crouchImage;
     QPixmap attackImage;
     QElapsedTimer damageTimer;
+    int collectedApples = 0;
+
 };
 
 #endif

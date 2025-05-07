@@ -91,3 +91,37 @@ void Quicksand::handleCollision(Player* player) {
 void Quicksand::setLevel(Level* l) {
     level = l;
 }
+
+
+
+Mushroom :: Mushroom(int x, int y) :
+Obstacle(QPixmap(":/Obstacles/poisonMushroom.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 10)
+{}
+
+void Mushroom::handleCollision(Player* player) {
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamage(10);
+            player->takeDamagePercent(0.02f);
+        }
+    }
+}
+
+Waterpond::Waterpond(int x, int y)
+    : Obstacle(QPixmap(":/Obstacles/waterpond.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 0)
+{}
+void Waterpond::handleCollision(Player* player) {
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamage(100);
+            player->takeDamagePercent(0.02f);
+        }
+    }
+}
+
+
+void Waterpond::setLevel(Level* l) {
+    level = l;
+}

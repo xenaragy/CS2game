@@ -31,6 +31,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         waterdroplet.h waterdroplet.cpp
         home.h home.cpp home.ui
+        message.h message.cpp
+        level2.h level2.cpp
+        apple.h apple.cpp
+        enemies.h enemies.cpp
 
 
     )

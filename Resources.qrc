@@ -5,14 +5,17 @@
         <file>brownbricks copy 2.png</file>
         <file>brownbricks copy.png</file>
         <file>portal.png</file>
-       <file>homepage.jpeg</file>
-
+        <file>homepage.jpeg</file>
+        <file>forrestPortal.png</file>
+        <file>ForrestBackground.png</file>
     </qresource>
     <qresource prefix="/Obstacles">
         <file>firepit.png</file>
         <file>quicksand.png</file>
         <file>cactus.png</file>
         <file>waterdroplet.png</file>
+        <file>waterpond.png</file>
+        <file>poisonMushroom.png</file>
     </qresource>
     <qresource prefix="/Character">
         <file>playersword.png</file>
@@ -21,8 +24,11 @@
         <file>runningright.png</file>
         <file>playerstanding.png</file>
     </qresource>
-    <qresource prefix="/Rewards"/>
-    <qresource prefix="/Portals"/>
-    <qresource prefix="/Portal "/>
+    <qresource prefix="/Rewards">
+        <file>apple.png</file>
+    </qresource>
     <qresource lang="C++" prefix="/Rewards"/>
+    <qresource prefix="/Enemies">
+        <file>tiger.png</file>
+    </qresource>
 </RCC>

@@ -6,6 +6,8 @@
 #include "waterdroplet.h"
 #include "mainwindow.h"
 #include <QTimer>
+#include "Message.h"
+
 
 
 Level::Level(int number, QGraphicsScene* scene, Player* p1)
@@ -72,6 +74,11 @@ void Level::setupLevel()
     }
     scene->addItem(p1);
     p1->setPosition(50, groundY - 100);
+
+    if (levelNumber == 1) {
+        Message* startMessage = Message::createLevelOneStartMessage();
+        startMessage->showMessage(scene, 300, 350);
+    }
 }
 
 

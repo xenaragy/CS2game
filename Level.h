@@ -9,7 +9,7 @@
 
 class Level : public QObject{
         Q_OBJECT
-private:
+protected:
     QGraphicsScene* scene;
     QVector<QGraphicsItem*> obstacles;
     QVector<QGraphicsItem*> enemies;
@@ -21,9 +21,9 @@ private:
     const int screenWidth = 800;
 public:
     Level(int number, QGraphicsScene* scene, Player* p1);
-    void setupLevel();
+    virtual void setupLevel();
     void addEnemy(QGraphicsItem* enemy);
-    void resetLevel();
+    virtual void resetLevel();
     void nextLevel();
     int getLevelNumber() const;
     void addObstacle(QGraphicsItem* obstacle);

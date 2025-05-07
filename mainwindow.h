@@ -14,7 +14,13 @@
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+enum GameState {
+    Level1,
+    Level2,
+    GameOver
+};
 class Level;
+class Level2;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -26,6 +32,10 @@ public:
     void resetGameState();
     void updateScore();
     void updateGame();
+    void switchToNextLevel();
+    void setLevel(int level);
+    void nextLevel();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
@@ -40,15 +50,22 @@ private:
     QLabel *scoreText;
     QLabel *waterIcon;
     QGraphicsRectItem *healthBar;
-    void setupGame();
+    void setupLevel1();
+    void setupLevel2();
     void updateHealthBar();
     bool levelFinished = false;
-public slots:
+    GameState currentState = Level1;
+private slots:
     void goToHome();
+    void handleLevelTwoComplete();
+signals:
+    void levelOneCompleted();
+    void backToHome();
+    void levelTwoCompleted();
 
 protected:
-  //  void keyPressEvent(QKeyEvent *event) override;
-  //  void keyReleaseEvent(QKeyEvent *event) override;
+   // void keyPressEvent(QKeyEvent *event) override;
+   // void keyReleaseEvent(QKeyEvent *event) override;
 
 };
 #endif // MAINWINDOW_H

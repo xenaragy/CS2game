@@ -53,5 +53,21 @@ private:
     Level* level;
 };
 
+class Mushroom : public Obstacle {
+public:
+    Mushroom(int x, int y);
+    void handleCollision(Player* player) override;
+};
+
+class Waterpond : public Obstacle {
+
+public:
+    Waterpond(int x, int y);
+    void handleCollision(Player* player) override;
+    void setLevel(Level* level);
+
+private:
+    Level* level;
+};
 
 #endif // OBSTACLE_H

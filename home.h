@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QLabel>
+#include "mainwindow.h"
 
 class Home : public QWidget
 {
@@ -11,13 +12,22 @@ class Home : public QWidget
 
 public:
     explicit Home(QWidget *parent = nullptr);
-
+     ~Home();
 private slots:
     void startLevel1();
+    void unlockLevel2();
+    void startLevel2();
+
+
+signals:
+    void levelOneCompleted();
 
 private:
     void setupUI();
+
     QLabel* backgroundLabel;
+    QPushButton* level2Btn;
+    MainWindow* gameWindow = nullptr;
 };
 
 #endif // HOME_H
