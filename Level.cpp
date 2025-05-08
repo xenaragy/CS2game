@@ -3,7 +3,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QRandomGenerator>
-#include "waterdroplet.h"
+#include "rewards.h"
 #include "mainwindow.h"
 #include <QTimer>
 #include "Message.h"

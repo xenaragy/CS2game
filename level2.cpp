@@ -6,8 +6,7 @@
 #include <QTimer>
 #include "message.h"
 #include "enemies.h"
-#include "waterdroplet.h"
-#include "apple.h"
+#include "rewards.h"
 #include "obstacle.h"
 
 Level2::Level2(QGraphicsScene* scene, Player* p1)

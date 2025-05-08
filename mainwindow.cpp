@@ -5,7 +5,7 @@
 #include <QFont>
 #include <QPixmap>
 #include "obstacle.h"
-#include "waterdroplet.h"
+// #include "waterdroplet.h"
 #include "home.h"
 #include <QGraphicsRectItem>
 #include <QPushButton>
@@ -13,7 +13,7 @@
 #include <QTimer>
 #include "Level.h"
 #include "message.h"
-#include "apple.h"
+#include "rewards.h"
 #include "level2.h"
 #include "enemies.h"
 
@@ -112,7 +112,6 @@ void MainWindow::setupLevel1()
 }
 
 void MainWindow::setupLevel2() {
-    // Remove existing items but don't delete the scene itself
     if (scene) {
         scene->clear();
     } else {
@@ -129,7 +128,6 @@ void MainWindow::setupLevel2() {
         setCentralWidget(view);
     }
 
-    // Create background
     QPixmap bgPixmap(":/backgrounds/ForrestBackground.png");
     bgPixmap = bgPixmap.scaled(800, 600);
     bg1 = scene->addPixmap(bgPixmap);
@@ -139,21 +137,18 @@ void MainWindow::setupLevel2() {
     bg1->setZValue(-1);
     bg2->setZValue(-1);
 
-    // Create player
     player = new Player();
     scene->addItem(player);
     player->setFlag(QGraphicsItem::ItemIsFocusable);
     player->setFocus();
     player->setPosition(100, 400);
 
-    // Create Level 2
     if (level) {
         delete level;
     }
     level = new class Level2(scene, player);
     level->setupLevel();
 
-    // Health bar
     healthOutline = new QGraphicsRectItem(0, 0, 200, 20);
     healthOutline->setPen(QPen(Qt::black));
     scene->addItem(healthOutline);
@@ -164,17 +159,14 @@ void MainWindow::setupLevel2() {
     healthOutline->setPos(590, 40);
     healthBar->setPos(590, 40);
 
-    // UI elements
     levelText->setText("Level: 2");
     waterIcon->setPixmap(QPixmap(":/Rewards/apple.png").scaled(30, 30));
     scoreText->setText("0/20");
 
-    // Reset game state
     levelFinished = false;
     player->resetDroplets();
     player->setHealth(100);
 
-    // Start game loop
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
@@ -341,7 +333,6 @@ void MainWindow::updateGame()
         }
     }
 
-    // Position UI elements
     int margin = 10;
     int viewRight = this->width();
     healthOutline->setPos(viewRight - 230, margin + 30);

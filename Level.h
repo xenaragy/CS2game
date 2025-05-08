@@ -5,7 +5,7 @@
 #include <QGraphicsPixmapItem>
 #include <QVector>
 #include "Player.h"
-#include "waterdroplet.h"
+#include "rewards.h"
 
 class Level : public QObject{
         Q_OBJECT

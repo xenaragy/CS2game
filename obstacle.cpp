@@ -9,9 +9,6 @@ Obstacle::Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int d
     setPos(x, y);
 }
 
-// void Obstacle::setType(ObstacleType type) {
-//     obstacleType = type;
-// }
 
 Obstacle::ObstacleType Obstacle::getType() const {
     return obstacleType;
@@ -33,14 +30,6 @@ bool Obstacle::isMovable() const {
     return movable;
 }
 
-// void Obstacle::move() {
-//     if (movable) {
-//         setPos(x() + speed, y());
-//         if (x() < 100 || x() > 600) {
-//             speed = -speed;
-//         }
-//     }
-// }
 
 void Obstacle::handleCollision(Player* player) {} //overriding function
 

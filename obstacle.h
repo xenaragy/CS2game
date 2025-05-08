@@ -14,13 +14,11 @@
 public:
     enum class ObstacleType { Platform, Hazard, Moving };
     Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage = 0, bool isMovable = false);
-  //  void setType(ObstacleType type);
     ObstacleType getType() const;
     void setDamage(int damage);
     int getDamage() const;
     void setMovable(bool isMovable);
     bool isMovable() const;
-    //void move();
     virtual void handleCollision(Player* player) = 0;
 
 private:

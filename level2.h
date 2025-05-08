@@ -2,7 +2,7 @@
 #define LEVEL2_H
 
 #include "Level.h"
-#include "apple.h"    // Use lowercase if that's the actual filename
+#include "rewards.h"    // Use lowercase if that's the actual filename
 #include "message.h"  // Use lowercase if that's the actual filename
 #include "enemies.h"
 

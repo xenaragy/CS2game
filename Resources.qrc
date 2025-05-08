@@ -8,14 +8,21 @@
         <file>homepage.jpeg</file>
         <file>forrestPortal.png</file>
         <file>ForrestBackground.png</file>
+        <file>snowBackground.jpg</file>
+        <file>Iceplat2.png</file>
+        <file>Iceplat1.png</file>
+        <file>Iceplat3.png</file>
     </qresource>
     <qresource prefix="/Obstacles">
         <file>firepit.png</file>
         <file>quicksand.png</file>
         <file>cactus.png</file>
-        <file>waterdroplet.png</file>
         <file>waterpond.png</file>
         <file>poisonMushroom.png</file>
+        <file>waterdroplet.png</file>
+        <file>snowman.png</file>
+        <file>snowball.png</file>
+        <file>hole.webp</file>
     </qresource>
     <qresource prefix="/Character">
         <file>playersword.png</file>
@@ -26,9 +33,12 @@
     </qresource>
     <qresource prefix="/Rewards">
         <file>apple.png</file>
+        <file>snowflake.png</file>
     </qresource>
     <qresource lang="C++" prefix="/Rewards"/>
     <qresource prefix="/Enemies">
         <file>tiger.png</file>
+        <file>penguin.png</file>
+        <file>polarbear.png</file>
     </qresource>
 </RCC>
