@@ -1,4 +1,3 @@
-// rewards.h
 #ifndef REWARDS_H
 #define REWARDS_H
 
@@ -6,7 +5,7 @@
 #include <QGraphicsPixmapItem>
 #include "Player.h"
 
-class Rewards : public QObject, public QGraphicsPixmapItem {
+            class Rewards : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
     Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent = nullptr);
@@ -31,5 +30,15 @@ public:
     ~Apple() override;
     void checkCollision(Player* player) override;
 };
+
+class Snowflake : public Rewards {
+    Q_OBJECT
+public:
+
+    Snowflake(int x, int y, QObject* parent = nullptr);
+    ~Snowflake() override;
+    void checkCollision(Player* player) override;
+};
+
 
 #endif // REWARDS_H

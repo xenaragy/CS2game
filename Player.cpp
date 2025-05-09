@@ -5,10 +5,8 @@
 #include <QGraphicsRectItem>
 #include <QDebug>
 
-
-
-Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
-    attacking(false), isRight(false), isLeft(false), isOnGround(true) {
+             Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
+attacking(false), isRight(false), isLeft(false), isOnGround(true) {
     QPixmap standingPixmap(":/Character/playerstanding.png");
     QPixmap runningRightPixmap(":/Character/runningright.png");
     QPixmap runningLeftPixmap(":/Character/runningleft.png");
@@ -74,11 +72,11 @@ void Player::crouch() {
 }
 
 void Player::attack() {
-    attacking = true; // Use 'attacking' instead of 'isAttacking'
+    attacking = true;
     setPixmap(attackImage);
 
     QTimer::singleShot(500, this, [this]() {
-        attacking = false; // Also here
+        attacking = false;
         setPixmap(standingImage);
     });
 }
@@ -100,19 +98,16 @@ void Player::takeDamage(int damage) {
     if (health < 0) health = 0;
 }
 
-void Player::takeDamagePercent(float percent)
-{
+void Player::takeDamagePercent(float percent) {
     int dmg = static_cast<int>(percent * 100);
     health -= dmg;
     if (health < 0) health = 0;
 }
 
-
 void Player::heal(int healthPoints) {
     health += healthPoints;
     if (health > 100) health = 100;
 }
-
 
 int Player::getHealth() const {
     return health;
@@ -167,7 +162,6 @@ bool Player::canTakeDamage(int cooldownMs) {
     return false;
 }
 
-
 void Player::incrementApples() {
     collectedApples++;
 }
@@ -180,26 +174,36 @@ void Player::resetDroplets() {
     dropletsCollected = 0;
 }
 
+void Player::resetApples() {
+    collectedApples = 0;
+}
+
+void Player::incrementSnowflakes() {
+    collectedSnowflakes++;
+}
+
+int Player::getCollectedSnowflakes() const {
+    return collectedApples;
+}
+
+void Player::resetSnowflakes() {
+    collectedSnowflakes = 0;
+}
+
 void Player::applyGravity() {
-    // Don't apply gravity if we're in the middle of a jump
     if (jumpTimer->isActive()) {
         return;
     }
 
-    // Check if we're on solid ground
     if (isOnGround) {
         bool stillOnPlatform = false;
 
-        // If we're at the ground level, we're definitely on solid ground
         if (y() == groundY) {
             stillOnPlatform = true;
         } else {
-            // Otherwise, check if we're on a platform
             QList<QGraphicsItem*> colliding = collidingItems();
             for (QGraphicsItem* item : colliding) {
-                if (item == this) continue;  // Skip self-collision
-
-                // Check for platform data tag
+                if (item == this) continue;
                 if (item->data(0) == "platform") {
                     stillOnPlatform = true;
                     break;
@@ -207,50 +211,43 @@ void Player::applyGravity() {
             }
         }
 
-        // If we're not on anything solid, start falling
         if (!stillOnPlatform) {
             isOnGround = false;
             velocityY = 0;
         } else {
-            // We're on solid ground, no need to apply gravity
             return;
         }
     }
 
-    // Apply gravity if we're not on ground
     velocityY += gravity;
-    if (velocityY > 15) velocityY = 15;  // Terminal velocity cap
+    if (velocityY > 15) velocityY = 15;
     setPos(x(), y() + velocityY);
 
-    // Check if we've landed on a platform
     QList<QGraphicsItem*> colliding = collidingItems();
     for (QGraphicsItem* item : colliding) {
         if (item == this) continue;
-
         if (item->data(0) == "platform" && velocityY > 0 && y() + boundingRect().height() >= item->y() - 2) {
-            setY(item->y() - boundingRect().height());
+           // setY(item->y() - boundingRect().height());
             isOnGround = true;
             velocityY = 0;
             return;
         }
     }
 
-    // Check if we've hit the ground level
     if (y() >= groundY) {
         setY(groundY);
         isOnGround = true;
         velocityY = 0;
     }
 
-    // Safety check - if we fall too far, reset position
     if (y() > 1000) {
         setY(groundY);
         isOnGround = true;
         velocityY = 0;
     }
 }
+
 void Player::resetPlayer() {
-    // Reset movement states
     isJumping = false;
     isCrouching = false;
     attacking = false;
@@ -258,12 +255,11 @@ void Player::resetPlayer() {
     isLeft = false;
     isOnGround = true;
 
-    // Reset velocity and position
     velocityY = 0;
-    setPos(100, 400);  // Reset to the initial starting position for Level 2
+    setPos(100, 400);
 
-    // Reset health and collected items if necessary
-    health = 100;  // Or your max health value
-    collectedApples = 0;  // Or reset other variables related to the game
+    health = 100;
+    collectedApples = 0;
+    collectedSnowflakes = 0;
+    dropletsCollected = 0;
 }
-

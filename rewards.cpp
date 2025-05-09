@@ -1,8 +1,7 @@
-// rewards.cpp
 #include "rewards.h"
 #include <QGraphicsScene>
 
-Rewards::Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent)
+              Rewards::Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent)
     : QObject(parent), QGraphicsPixmapItem(), m_isCollected(false)
 {
     QPixmap rewardPixmap(imagePath);
@@ -50,6 +49,31 @@ Apple::~Apple()
 {}
 
 void Apple::checkCollision(Player* player)
+{
+    if (m_isCollected) return;
+
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player) {
+            m_isCollected = true;
+            player->incrementApples();
+            scene()->removeItem(this);
+            delete this;
+            break;
+        }
+    }
+}
+
+Snowflake::Snowflake(int x, int y, QObject* parent)
+    : Rewards(x, y, ":/Rewards/snowflake.png", 30, 30, parent)
+{
+    setData(0, "snowflake");
+}
+
+Snowflake::~Snowflake()
+{}
+
+void Snowflake::checkCollision(Player* player)
 {
     if (m_isCollected) return;
 

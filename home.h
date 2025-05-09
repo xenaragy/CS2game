@@ -6,27 +6,32 @@
 #include <QLabel>
 #include "mainwindow.h"
 
-class Home : public QWidget
+    class Home : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit Home(QWidget *parent = nullptr);
-     ~Home();
+    ~Home();
 private slots:
     void startLevel1();
     void unlockLevel2();
     void startLevel2();
-
+    void unlockLevel3();
+    void startLevel3();
+    void startLevel(int levelNumber);
 
 signals:
     void levelOneCompleted();
+    void backToHome();
+    void levelTwoCompleted();
+    void levelThreeCompleted();
 
 private:
     void setupUI();
-
     QLabel* backgroundLabel;
     QPushButton* level2Btn;
+    QPushButton* level3Btn;
     MainWindow* gameWindow = nullptr;
 };
 

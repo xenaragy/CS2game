@@ -3,6 +3,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QDebug>
+#include <QTimer>
 
 Home::Home(QWidget *parent)
     : QWidget(parent), gameWindow(nullptr)
@@ -14,40 +15,41 @@ Home::Home(QWidget *parent)
 Home::~Home()
 {
     if (gameWindow) {
+        gameWindow->disconnect(); // Disconnect all signals
         delete gameWindow;
     }
 }
 
 void Home::setupUI()
 {
+    // Background setup
     backgroundLabel = new QLabel(this);
     backgroundLabel->setPixmap(QPixmap(":/backgrounds/homepage.jpeg").scaled(size()));
     backgroundLabel->setGeometry(0, 0, width(), height());
     backgroundLabel->lower();
 
-    // Level 1 Portal Button
+    // Level 1 Button
     QPushButton* portalBtn = new QPushButton(this);
     portalBtn->setIcon(QIcon(":/backgrounds/portal.png"));
     portalBtn->setIconSize(QSize(200, 200));
     portalBtn->setFixedSize(200, 200);
     portalBtn->setFlat(true);
+    portalBtn->move(50, 100);
 
     QLabel* portalText = new QLabel("Level 1", this);
     portalText->setAlignment(Qt::AlignCenter);
     portalText->setStyleSheet("font-size: 18px; font-weight: bold; color: green; background-color: transparent;");
     portalText->setGeometry(90, 150, 120, 140);
-    portalBtn->move(50, 100);
 
     connect(portalBtn, &QPushButton::clicked, this, &Home::startLevel1);
 
-    // Level 2 Portal Button
+    // Level 2 Button
     level2Btn = new QPushButton(this);
     level2Btn->setIcon(QIcon(":/backgrounds/portal.png"));
     level2Btn->setIconSize(QSize(200, 200));
     level2Btn->setFixedSize(200, 200);
     level2Btn->setFlat(true);
     level2Btn->setGeometry(50, 350, 200, 200);
-    // Initially we don't hide Level 2 button as per your current code
 
     QLabel* level2Text = new QLabel("Level 2", this);
     level2Text->setAlignment(Qt::AlignCenter);
@@ -55,47 +57,83 @@ void Home::setupUI()
     level2Text->setGeometry(90, 400, 120, 140);
 
     connect(level2Btn, &QPushButton::clicked, this, &Home::startLevel2);
+
+    // Level 3 Button
+    level3Btn = new QPushButton(this);
+    level3Btn->setIcon(QIcon(":/backgrounds/portal.png"));
+    level3Btn->setIconSize(QSize(200, 200));
+    level3Btn->setFixedSize(200, 200);
+    level3Btn->setFlat(true);
+    level3Btn->setGeometry(300, 350, 200, 200);
+
+    QLabel* level3Text = new QLabel("Level 3", this);
+    level3Text->setAlignment(Qt::AlignCenter);
+    level3Text->setStyleSheet("font-size: 18px; font-weight: bold; color: green; background-color: transparent;");
+    level3Text->setGeometry(340, 400, 120, 140);
+
+    connect(level3Btn, &QPushButton::clicked, this, &Home::startLevel3);
+}
+
+void Home::startLevel(int levelNumber) {
+    qDebug() << "Starting Level" << levelNumber;
+
+    // Clean up any existing game window
+    if (gameWindow) {
+        gameWindow->disconnect(); // Disconnect all signals from window
+        delete gameWindow;
+        gameWindow = nullptr;
+    }
+
+    // Create new game window
+    gameWindow = new MainWindow(nullptr);
+
+    // Connect signals in a consistent way
+    connect(gameWindow, &MainWindow::backToHome, this, [this]() {
+        qDebug() << "Received backToHome signal";
+        if (gameWindow) {
+            gameWindow->hide();
+        }
+        this->show();
+
+        // Clean up game window after a delay
+        QTimer::singleShot(500, this, [this]() {
+            if (gameWindow) {
+                gameWindow->disconnect();
+                delete gameWindow;
+                gameWindow = nullptr;
+                qDebug() << "Game window deleted after returning home";
+            }
+        });
+    });
+
+    // Connect level completion signals
+    connect(gameWindow, &MainWindow::levelOneCompleted, this, &Home::unlockLevel2);
+    connect(gameWindow, &MainWindow::levelTwoCompleted, this, &Home::unlockLevel3);
+
+    // Set up and show the level
+    gameWindow->setLevel(levelNumber);
+    gameWindow->show();
+    this->hide();
 }
 
 void Home::startLevel1() {
-    this->hide();  // Hide Home screen
-
-    if (!gameWindow) {
-        gameWindow = new MainWindow(nullptr);
-
-        // Connect the backToHome signal to show the Home window again
-        connect(gameWindow, &MainWindow::backToHome, this, [this]() {
-            gameWindow->hide();
-            this->show();  // This should make the Home screen visible again
-        });
-
-        // Connect level completion signal
-        connect(gameWindow, &MainWindow::levelOneCompleted, this, &Home::unlockLevel2);
-    }
-
-    gameWindow->setLevel(1);   // Load Level 1
-    gameWindow->show();
+    startLevel(1);
 }
 
 void Home::startLevel2() {
-    this->hide();
-
-    if (!gameWindow) {
-        gameWindow = new MainWindow(nullptr);
-        gameWindow->setAttribute(Qt::WA_DeleteOnClose, false);
-
-        connect(gameWindow, &MainWindow::backToHome, this, [this]() {
-            this->show();
-            gameWindow->hide();
-        });
-    }
-
-    gameWindow->setLevel(2);
-    gameWindow->show();
+    startLevel(2);
 }
 
-void Home::unlockLevel2()
-{
-    qDebug() << "Level 1 completed - Level 2 unlocked";
-    level2Btn->show();    // Show Level 2 portal button after Level 1 is completed
+void Home::startLevel3() {
+    startLevel(3);
+}
+
+void Home::unlockLevel2() {
+    qDebug() << "Level 2 unlocked";
+    level2Btn->show();
+}
+
+void Home::unlockLevel3() {
+    qDebug() << "Level 3 unlocked";
+    level3Btn->show();
 }

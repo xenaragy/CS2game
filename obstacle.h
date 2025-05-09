@@ -9,7 +9,7 @@
 
 
 
- class Obstacle : public QGraphicsPixmapItem {
+             class Obstacle : public QGraphicsPixmapItem {
 
 public:
     enum class ObstacleType { Platform, Hazard, Moving };
@@ -67,5 +67,27 @@ public:
 private:
     Level* level;
 };
+
+class Snowman : public Obstacle {
+public:
+    Snowman(int x, int y);
+    void handleCollision(Player* player) override;
+};
+
+class Hole : public Obstacle {
+public:
+    Hole(int x, int y);
+    void handleCollision(Player* player) override;
+};
+
+class SnowBall : public Obstacle {
+public:
+    SnowBall(int x, int y);
+    void handleCollision(Player* player) override;
+
+private:
+    Level* level;
+};
+
 
 #endif // OBSTACLE_H

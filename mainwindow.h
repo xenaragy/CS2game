@@ -17,10 +17,12 @@ QT_END_NAMESPACE
 enum GameState {
     Level1,
     Level2,
+    Level3,
     GameOver
 };
 class Level;
 class Level2;
+class Level3;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -52,6 +54,7 @@ private:
     QGraphicsRectItem *healthBar;
     void setupLevel1();
     void setupLevel2();
+    void setupLevel3();
     void updateHealthBar();
     bool levelFinished = false;
     GameState currentState = Level1;
@@ -62,10 +65,7 @@ signals:
     void levelOneCompleted();
     void backToHome();
     void levelTwoCompleted();
-
-protected:
-   // void keyPressEvent(QKeyEvent *event) override;
-   // void keyReleaseEvent(QKeyEvent *event) override;
+    void levelThreeCompleted();
 
 };
 #endif // MAINWINDOW_H

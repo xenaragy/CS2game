@@ -3,7 +3,7 @@
 #include "MainWindow.h"
 
 
-Obstacle::Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage, bool isMovable)
+               Obstacle::Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage, bool isMovable)
     : QGraphicsPixmapItem(pixmap), obstacleType(type), damage(damage), movable(isMovable), speed(0)
 {
     setPos(x, y);
@@ -84,7 +84,7 @@ void Quicksand::setLevel(Level* l) {
 
 
 Mushroom :: Mushroom(int x, int y) :
-Obstacle(QPixmap(":/Obstacles/poisonMushroom.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 10)
+    Obstacle(QPixmap(":/Obstacles/poisonMushroom.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 10)
 {}
 
 void Mushroom::handleCollision(Player* player) {
@@ -113,4 +113,40 @@ void Waterpond::handleCollision(Player* player) {
 
 void Waterpond::setLevel(Level* l) {
     level = l;
+}
+
+Snowman::Snowman::Snowman(int x, int y)
+    : Obstacle(QPixmap(":/Obstacles/snowman.png").scaled(60, 60), x, y, ObstacleType::Hazard, 5) {}
+
+void Snowman::handleCollision(Player* player) {
+    QList<QGraphicsItem*> items = collidingItems();
+    for (QGraphicsItem* item : items) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamagePercent(0.05f);  // 5% health
+        }
+    }
+}
+
+Hole::Hole(int x, int y)
+    : Obstacle(QPixmap(":/Obstacles/hole.webp").scaled(60, 60), x, y, ObstacleType::Hazard, 10) {}
+
+void Hole::handleCollision(Player* player) {
+    QList<QGraphicsItem*> items = collidingItems();
+    for (QGraphicsItem* item : items) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamagePercent(0.10f);  // Instant death
+        }
+    }
+}
+
+SnowBall::SnowBall(int x, int y)
+    : Obstacle(QPixmap(":/Obstacles/snowball.png").scaled(80, 80), x, y, ObstacleType::Hazard, 10) {}
+
+void SnowBall::handleCollision(Player* player) {
+    QList<QGraphicsItem*> items = collidingItems();
+    for (QGraphicsItem* item : items) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamagePercent(0.10f);  // 10% health
+        }
+    }
 }

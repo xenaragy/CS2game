@@ -9,12 +9,13 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
-class Player : public QObject, public QGraphicsPixmapItem {
+           class Player : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 
 public:
     Player();
     ~Player();
+
     void moveForward();
     void moveBackward();
     void jump();
@@ -30,20 +31,34 @@ public:
     void keyReleaseEvent(QKeyEvent* event);
     bool isMovingRight() const { return isRight; }
     bool isMovingLeft() const { return isLeft; }
+
+    // Level 1
     void collectDroplet();
     void incrementDroplets();
     int getCollectedDroplets() const;
     void setDropletsCollected(int count);
-    bool canTakeDamage(int cooldownMs = 1000);
     void resetDroplets();
+
+    // Level 2
+    void incrementApples();
+    int getCollectedApples() const;
+    void resetApples();
+
+    // Level 3
+    void incrementSnowflakes();
+    int getCollectedSnowflakes() const;
+    void resetSnowflakes();
+
+    // Utility
+    bool canTakeDamage(int cooldownMs = 1000);
+    void resetPlayer();
+    bool isAttacking() { return attacking; }
+
     void applyGravity();
     QTimer* gravityTimer;
     bool isOnGround;
     float gravity = 1.0f;
-    void incrementApples();
-    int getCollectedApples() const;
-    void resetPlayer();
-    bool isAttacking() { return attacking; }
+
 private:
     int health = 100;
     int coins;
@@ -55,16 +70,18 @@ private:
     QTimer* jumpTimer;
     int velocityY;
     int groundY;
-    int dropletsCollected = 0;
     int maxHealth = 100;
+
+    int dropletsCollected = 0;
+    int collectedApples = 0;
+    int collectedSnowflakes = 0;
+
     QPixmap standingImage;
     QPixmap runningRightImage;
     QPixmap runningLeftImage;
     QPixmap crouchImage;
     QPixmap attackImage;
     QElapsedTimer damageTimer;
-    int collectedApples = 0;
-
 };
 
-#endif
+#endif // PLAYER_H

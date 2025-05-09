@@ -36,6 +36,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         enemies.h enemies.cpp
         rewards.h rewards.cpp
+        level3.h level3.cpp
 
 
     )

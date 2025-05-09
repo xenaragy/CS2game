@@ -5,7 +5,7 @@
 #include <QGraphicsPixmapItem>
 #include "Player.h"
 
-class Enemies : public QObject, public QGraphicsPixmapItem {
+            class Enemies : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
     explicit Enemies(int x, int y, const QString& spritePath, QObject* parent = nullptr);
@@ -36,5 +36,45 @@ private:
     int health;
     bool canTakeDamage();
 };
+
+class Penguin : public Enemies {
+    Q_OBJECT
+public:
+    Penguin(int x, int y, QObject* parent = nullptr);
+    ~Penguin();
+    void move() override;
+    bool takeDamage(int damage);
+    bool isAlive() const;
+
+private slots:
+    void patrol();
+
+private:
+    QTimer* movementTimer;
+    QTimer* damageTimer;
+    int health;
+    bool canTakeDamage();
+};
+
+class PolarBear : public Enemies {
+    Q_OBJECT
+public:
+    PolarBear(int x, int y, QObject* parent = nullptr);
+    ~PolarBear();
+    void move() override;
+    bool takeDamage(int damage);
+    bool isAlive() const;
+
+private slots:
+    void patrol();
+
+private:
+    QTimer* movementTimer;
+    QTimer* damageTimer;
+    int health;
+    bool canTakeDamage();
+};
+
+
 
 #endif // ENEMIES_H  // Make sure this line exists!

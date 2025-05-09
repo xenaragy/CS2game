@@ -1,7 +1,7 @@
 #include "Message.h"
 #include <QGraphicsScene>
 
-Message::Message(const QString& text, int duration, QGraphicsItem* parent)
+              Message::Message(const QString& text, int duration, QGraphicsItem* parent)
     : QGraphicsTextItem(parent), displayDuration(duration) {
     setPlainText(text);
     setDefaultTextColor(Qt::red);
@@ -33,6 +33,7 @@ Message* Message::createGameOverMessage() {
     return new Message("GAME OVER", 3000);
 }
 
+
 // New methods for Level 1 specific messages
 Message* Message::createLevelOneStartMessage() {
     return new Message("Collect all droplets", 3000);
@@ -48,4 +49,12 @@ Message* Message::createLevelTwoStartMessage() {
 
 Message* Message::createLevelTwoCompleteMessage() {
     return new Message("Forest Level Completed!", 3000);
+}
+
+Message* Message::createLevelThreeStartMessage() {
+    return new Message("Collects all Snowflakes", 3000);
+}
+
+Message* Message::createLevelThreeCompleteMessage() {
+    return new Message("Snow Level Completed!", 3000);
 }
