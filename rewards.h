@@ -40,5 +40,13 @@ public:
     void checkCollision(Player* player) override;
 };
 
+class Earth : public Rewards {
+    Q_OBJECT
+public:
+    Earth(int x, int y, QObject* parent = nullptr);
+    ~Earth() override;
+    void checkCollision(Player* player) override;
+};
+
 
 #endif // REWARDS_H

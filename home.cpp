@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QTimer>
 
-Home::Home(QWidget *parent)
+           Home::Home(QWidget *parent)
     : QWidget(parent), gameWindow(nullptr)
 {
     setFixedSize(800, 600);
@@ -72,6 +72,23 @@ void Home::setupUI()
     level3Text->setGeometry(340, 400, 120, 140);
 
     connect(level3Btn, &QPushButton::clicked, this, &Home::startLevel3);
+
+    // Level 4 Button
+    level4Btn = new QPushButton(this);
+    level4Btn->setIcon(QIcon(":/backgrounds/portal.png"));
+    level4Btn->setIconSize(QSize(200, 200));
+    level4Btn->setFixedSize(200, 200);
+    level4Btn->setFlat(true);
+    level4Btn->setGeometry(300, 100, 200, 200);
+
+    QLabel* level4Text = new QLabel("Level 4", this);
+    level4Text->setAlignment(Qt::AlignCenter);
+    level4Text->setStyleSheet("font-size: 18px; font-weight: bold; color: green; background-color: transparent;");
+    level4Text->setGeometry(300, 200, 200, 30);
+
+
+    connect(level4Btn, &QPushButton::clicked, this, &Home::startLevel4);
+
 }
 
 void Home::startLevel(int levelNumber) {
@@ -87,7 +104,7 @@ void Home::startLevel(int levelNumber) {
     // Create new game window
     gameWindow = new MainWindow(nullptr);
 
-    // Connect signals in a consistent way
+    // Connect signal to return to home
     connect(gameWindow, &MainWindow::backToHome, this, [this]() {
         qDebug() << "Received backToHome signal";
         if (gameWindow) {
@@ -106,9 +123,10 @@ void Home::startLevel(int levelNumber) {
         });
     });
 
-    // Connect level completion signals
+    // Connect all level completion signals to unlock next levels
     connect(gameWindow, &MainWindow::levelOneCompleted, this, &Home::unlockLevel2);
     connect(gameWindow, &MainWindow::levelTwoCompleted, this, &Home::unlockLevel3);
+    connect(gameWindow, &MainWindow::levelThreeCompleted, this, &Home::unlockLevel4);
 
     // Set up and show the level
     gameWindow->setLevel(levelNumber);
@@ -128,6 +146,10 @@ void Home::startLevel3() {
     startLevel(3);
 }
 
+void Home::startLevel4() {
+    startLevel(4);
+}
+
 void Home::unlockLevel2() {
     qDebug() << "Level 2 unlocked";
     level2Btn->show();
@@ -136,4 +158,9 @@ void Home::unlockLevel2() {
 void Home::unlockLevel3() {
     qDebug() << "Level 3 unlocked";
     level3Btn->show();
+}
+
+void Home::unlockLevel4() {
+    qDebug() << "Level 4 unlocked";
+    level4Btn->show();
 }

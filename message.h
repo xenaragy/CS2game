@@ -21,6 +21,8 @@ public:
     static Message* createLevelTwoCompleteMessage();
     static Message* createLevelThreeStartMessage();
     static Message* createLevelThreeCompleteMessage();
+    static Message* createLevelFourStartMessage();
+    static Message* createLevelFourCompleteMessage();
 
 
 

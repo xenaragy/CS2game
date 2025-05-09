@@ -18,11 +18,14 @@ enum GameState {
     Level1,
     Level2,
     Level3,
+    Level4,
     GameOver
 };
+
 class Level;
 class Level2;
 class Level3;
+class Level4;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -45,7 +48,7 @@ private:
     QGraphicsPixmapItem *bg1;
     QGraphicsPixmapItem *bg2;
     Player *player;
-    Level *level;
+    class Level *level;
     QGraphicsRectItem* healthOutline;
     QLabel *healthLabel;
     QLabel *levelText;
@@ -55,17 +58,21 @@ private:
     void setupLevel1();
     void setupLevel2();
     void setupLevel3();
+    void setupLevel4();
     void updateHealthBar();
     bool levelFinished = false;
     GameState currentState = Level1;
 private slots:
     void goToHome();
     void handleLevelTwoComplete();
+    void handleLevelThreeComplete();
+
 signals:
     void levelOneCompleted();
     void backToHome();
     void levelTwoCompleted();
     void levelThreeCompleted();
+    void levelFourCompleted();
 
 };
 #endif // MAINWINDOW_H

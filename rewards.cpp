@@ -88,3 +88,28 @@ void Snowflake::checkCollision(Player* player)
         }
     }
 }
+
+Earth::Earth(int x, int y, QObject* parent)
+    : Rewards(x, y, ":/Rewards/earth.png", 30, 30, parent)
+{
+    setData(0, "earth");
+}
+
+Earth::~Earth()
+{}
+
+void Earth::checkCollision(Player* player)
+{
+    if (m_isCollected) return;
+
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player) {
+            m_isCollected = true;
+            player->incrementEarths();
+            scene()->removeItem(this);
+            delete this;
+            break;
+        }
+    }
+}

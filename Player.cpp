@@ -178,6 +178,7 @@ void Player::resetApples() {
     collectedApples = 0;
 }
 
+
 void Player::incrementSnowflakes() {
     collectedSnowflakes++;
 }
@@ -189,6 +190,20 @@ int Player::getCollectedSnowflakes() const {
 void Player::resetSnowflakes() {
     collectedSnowflakes = 0;
 }
+
+
+void Player::incrementEarths() {
+    collectedEarths++;
+}
+
+int Player::getCollectedEarths() const {
+    return collectedEarths;
+}
+
+void Player::resetEarths() {
+    collectedEarths = 0;
+}
+
 
 void Player::applyGravity() {
     if (jumpTimer->isActive()) {
@@ -227,7 +242,7 @@ void Player::applyGravity() {
     for (QGraphicsItem* item : colliding) {
         if (item == this) continue;
         if (item->data(0) == "platform" && velocityY > 0 && y() + boundingRect().height() >= item->y() - 2) {
-           // setY(item->y() - boundingRect().height());
+            // setY(item->y() - boundingRect().height());
             isOnGround = true;
             velocityY = 0;
             return;

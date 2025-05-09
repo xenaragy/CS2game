@@ -1,25 +1,24 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
-#include <QTimer>
+#include "level.h"
+#include "level2.h"
+#include "level3.h"
+#include "level4.h"
+#include "message.h"
+#include "obstacle.h"
+#include "rewards.h"
+#include "enemies.h"
+#include "home.h"
+#include "ui_mainwindow.h"
 #include <QDebug>
+#include <QTimer>
 #include <QFont>
 #include <QPixmap>
-#include "level3.h"
-#include "obstacle.h"
-#include "home.h"
-#include <QGraphicsRectItem>
 #include <QPushButton>
-#include <QPen>
-#include <QTimer>
-#include "Level.h"
-#include "message.h"
-#include "rewards.h"
-#include "level2.h"
-#include "enemies.h"
-#include "level3.h"
+#include <QGraphicsRectItem>
+#include <QGraphicsView>
 
 
-MainWindow::MainWindow(QWidget *parent)
+                 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -88,7 +87,10 @@ void MainWindow::setLevel(int levelNumber) {
         setupLevel2();
     } else if (levelNumber == 3) {
         setupLevel3();
+    } else if (levelNumber == 4) {
+        setupLevel4();
     }
+
 
     // Reset level state
     levelFinished = false;
@@ -350,6 +352,89 @@ void MainWindow::setupLevel3() {
     qDebug() << "Level 3 setup complete!";
 }
 
+void MainWindow::setupLevel4() {
+
+    if (scene) {
+        scene->clear();
+        delete scene;
+    }
+
+    scene = new QGraphicsScene(this);
+    scene->setSceneRect(0, 0, 800, 600);
+
+    if (!view) {
+        view = new QGraphicsView(scene, this);
+        view->setFixedSize(800, 600);
+        view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        view->setRenderHint(QPainter::Antialiasing);
+        setCentralWidget(view);
+    } else {
+        view->setScene(scene);
+    }
+
+    QPixmap bgPixmap(":/backgrounds/spacebackground.jpg");
+    bgPixmap = bgPixmap.scaled(800, 600);
+    bg1 = scene->addPixmap(bgPixmap);
+    bg2 = scene->addPixmap(bgPixmap);
+    bg1->setPos(0, 0);
+    bg2->setPos(800, 0);
+    bg1->setZValue(-1);
+    bg2->setZValue(-1);
+
+    player = new Player();
+    scene->addItem(player);
+    player->setFlag(QGraphicsItem::ItemIsFocusable);
+    player->setFocus();
+    player->setPosition(100, 400);
+
+    if (level) {
+        delete level;
+    }
+    level = new class Level4(scene, player);
+    level->setupLevel();
+
+    healthOutline = new QGraphicsRectItem(0, 0, 200, 20);
+    healthOutline->setPen(QPen(Qt::black));
+    scene->addItem(healthOutline);
+
+    healthBar = new QGraphicsRectItem(0, 0, 200, 20);
+    healthBar->setBrush(Qt::green);
+    scene->addItem(healthBar);
+    healthOutline->setPos(590, 40);
+    healthBar->setPos(590, 40);
+
+    levelText = new QLabel("Level: 4", this);
+    levelText->setStyleSheet("color: black; font-weight: bold;");
+    levelText->move(50, 30);
+    levelText->resize(250, 30);
+
+    waterIcon = new QLabel(this);
+    waterIcon->setPixmap(QPixmap(":/Rewards/earth.png").scaled(30, 30));
+    waterIcon->move(175, 30);
+    waterIcon->resize(30, 30);
+
+    scoreText = new QLabel("0/30", this);
+    scoreText->setStyleSheet("color: black; font-weight: bold;");
+    scoreText->move(200, 30);
+    scoreText->resize(100, 30);
+
+    // Reset player state explicitly
+    levelFinished = false;
+    player->resetDroplets();
+    player->resetApples();
+    player->resetSnowflakes();
+    player->resetEarths();
+    player->setHealth(100);
+
+    // Make sure timer is properly set up with fixed interval
+    QTimer* timer = new QTimer(this);
+    timer->setInterval(16);
+    connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
+    timer->start(16);
+
+    qDebug() << "Level 4 setup complete!";
+}
 
 void MainWindow::updateHealthBar() {
     int hp = player->getHealth();
@@ -399,6 +484,9 @@ void MainWindow::updateScore() {
     } else if (level->getLevelNumber() == 3) {
         collected = player->getCollectedSnowflakes();
         requiredAmount = 25;
+    } else if (level->getLevelNumber() == 4){
+        collected = player->getCollectedEarths();
+        requiredAmount = 30;
     }
 
     scoreText->setText(QString::number(collected) + "/" + QString::number(requiredAmount));
@@ -419,18 +507,20 @@ void MainWindow::updateScore() {
         } else if (level->getLevelNumber() == 3) {
             Message* endMessage = Message::createLevelThreeCompleteMessage();
             endMessage->showMessage(scene, 300, 300);
-            emit levelThreeCompleted();  // Optional signal for future use
+            emit levelThreeCompleted();  // Signal to unlock level 4
+        } else if (level->getLevelNumber() == 4) {
+            Message* endMessage = Message::createLevelFourCompleteMessage();
+            endMessage->showMessage(scene, 300, 300);
+            emit levelFourCompleted();  // Signal for game completion
         }
 
-        // SIMPLIFIED: Always emit backToHome after a delay, regardless of level
+        // Always return to home screen after completing any level
         QTimer::singleShot(4000, this, [this]() {
             qDebug() << "Emitting backToHome signal after level completion";
             emit backToHome();
         });
     }
 }
-
-
 void MainWindow::updateGame()
 {
     if (player->y() > 600) {
@@ -487,13 +577,18 @@ void MainWindow::updateGame()
                 apple->checkCollision(player);
             }
         }
-    }
-
-    if (level->getLevelNumber() == 3) {
+    } else if (level->getLevelNumber() == 3) {
         for (QGraphicsItem* item : scene->items()) {
             Snowflake* flake = dynamic_cast<Snowflake*>(item);
             if (flake) {
                 flake->checkCollision(player);
+            }
+        }
+    } else if (level->getLevelNumber() == 4) {
+        for (QGraphicsItem* item : scene->items()) {
+            Earth* earth = dynamic_cast<Earth*>(item);
+            if (earth) {
+                earth->checkCollision(player);
             }
         }
     }
@@ -523,6 +618,19 @@ void MainWindow::updateGame()
                         QTimer::singleShot(1000, this, [this, bear]() {
                             scene->removeItem(bear);
                             delete bear;
+                        });
+                    }
+                }
+            }else if (level->getLevelNumber() == 4) {
+                Alien* alien = dynamic_cast<Alien*>(item);
+                if (alien && alien->isAlive()) {
+                    QPointF playerPos = player->pos();
+                    QPointF enemyPos = alien->pos();
+                    qreal distance = QLineF(playerPos, enemyPos).length();
+                    if (distance < 150 && alien->takeDamage(25)) {
+                        QTimer::singleShot(1000, this, [this, alien]() {
+                            scene->removeItem(alien);
+                            delete alien;
                         });
                     }
                 }
@@ -572,6 +680,7 @@ void MainWindow::resetGameState() {
     player->resetDroplets(); // Reset all types
     player->resetApples();
     player->resetSnowflakes();
+    player -> resetEarths();
     scoreText->setText("0/20"); // Optional: update to reflect current level requirement
     level->resetLevel();
 }
@@ -583,6 +692,8 @@ void MainWindow::nextLevel() {
         setupLevel2();
     } else if (currentLevel == 2) {
         setupLevel3();
+    } else if (currentLevel ==3){
+        setupLevel4();
     }
 }
 
@@ -621,10 +732,21 @@ void MainWindow::switchToNextLevel() {
         level3StartMessage->showMessage(scene, 300, 300);
 
         qDebug() << "Now playing Level 3";
+
+    }else if (currentLevel == 3) {
+        qDebug() << "Switching to Level 4...";
+
+        // Setup Level 4
+        setupLevel4();
+
+        // Display message for Level 4 start
+        Message* level4StartMessage = Message::createLevelFourStartMessage();
+        level4StartMessage->showMessage(scene, 300, 300);
+
+        qDebug() << "Now playing Level 4";
     }
+
 }
-
-
 
 void MainWindow::handleLevelTwoComplete() {
     // After a delay, switch to Level 3
@@ -633,5 +755,9 @@ void MainWindow::handleLevelTwoComplete() {
     });
 }
 
-
-
+void MainWindow::handleLevelThreeComplete() {
+    // After a delay, switch to Level 4
+    QTimer::singleShot(4000, this, [this]() {
+        switchToNextLevel();  // Move to Level 4
+    });
+}

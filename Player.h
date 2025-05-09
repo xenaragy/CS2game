@@ -49,6 +49,11 @@ public:
     int getCollectedSnowflakes() const;
     void resetSnowflakes();
 
+    // Level 4
+    void incrementEarths();
+    int getCollectedEarths() const;
+    void resetEarths();
+
     // Utility
     bool canTakeDamage(int cooldownMs = 1000);
     void resetPlayer();
@@ -75,6 +80,7 @@ private:
     int dropletsCollected = 0;
     int collectedApples = 0;
     int collectedSnowflakes = 0;
+    int collectedEarths = 0;
 
     QPixmap standingImage;
     QPixmap runningRightImage;

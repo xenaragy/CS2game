@@ -58,3 +58,11 @@ Message* Message::createLevelThreeStartMessage() {
 Message* Message::createLevelThreeCompleteMessage() {
     return new Message("Snow Level Completed!", 3000);
 }
+
+Message* Message::createLevelFourStartMessage() {
+    return new Message("Collects all Earths", 3000);
+}
+
+Message* Message::createLevelFourCompleteMessage() {
+    return new Message("Space Level Completed!", 3000);
+}
