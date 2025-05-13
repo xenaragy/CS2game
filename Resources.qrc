@@ -16,6 +16,10 @@
         <file>spaceplatfrom1.png</file>
         <file>spaceplatform2.png</file>
         <file>spacebackground.jpg</file>
+        <file>cavebackground.jpg</file>
+        <file>CavePlatform3.png</file>
+        <file>caveplatfrom2.png</file>
+        <file>caveplatform1.png</file>
     </qresource>
     <qresource prefix="/Obstacles">
         <file>firepit.png</file>
@@ -39,6 +43,7 @@
         <file>apple.png</file>
         <file>snowflake.png</file>
         <file>earth.png</file>
+        <file>diamond.png</file>
     </qresource>
     <qresource lang="C++" prefix="/Rewards"/>
     <qresource prefix="/Enemies">
@@ -46,5 +51,9 @@
         <file>penguin.png</file>
         <file>polarbear.png</file>
         <file>alien.png</file>
+        <file>caveman.png</file>
+        <file>spaceship.png</file>
+        <file>yellomonster.png</file>
+        <file>caveCreature.png</file>
     </qresource>
 </RCC>
