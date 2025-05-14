@@ -5,12 +5,11 @@
 #include <QGraphicsPixmapItem>
 #include "Player.h"
 
-             class Enemies : public QObject, public QGraphicsPixmapItem {
+class Enemies : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
     explicit Enemies(int x, int y, const QString& spritePath, QObject* parent = nullptr);
     virtual ~Enemies();
-    virtual void move() = 0;
     virtual void checkCollision(Player* player);
 protected:
     int startX;
@@ -20,21 +19,27 @@ protected:
 
 class Tiger : public Enemies {
     Q_OBJECT
+
 public:
     Tiger(int x, int y, QObject* parent = nullptr);
     ~Tiger();
-    void move() override;
     bool takeDamage(int damage);
+    bool canTakeDamage();
     bool isAlive() const;
 
 private slots:
     void patrol();
+    void respawn();  // Add respawn slot
 
 private:
+    int startX;
+    int startY;     // Add Y position for respawn
+    int direction;
+    int range;
+    int health;
     QTimer* movementTimer;
     QTimer* damageTimer;
-    int health;
-    bool canTakeDamage();
+    QTimer* respawnTimer;  // Add respawn timer
 };
 
 class Penguin : public Enemies {
@@ -42,7 +47,6 @@ class Penguin : public Enemies {
 public:
     Penguin(int x, int y, QObject* parent = nullptr);
     ~Penguin();
-    void move() override;
     bool takeDamage(int damage);
     bool isAlive() const;
 
@@ -61,7 +65,6 @@ class PolarBear : public Enemies {
 public:
     PolarBear(int x, int y, QObject* parent = nullptr);
     ~PolarBear();
-    void move() override;
     bool takeDamage(int damage);
     bool isAlive() const;
 
@@ -80,7 +83,6 @@ class Alien : public Enemies {
 public:
     Alien(int x, int y, QObject* parent = nullptr);
     ~Alien();
-    void move() override;
     bool takeDamage(int damage);
     bool isAlive() const;
 

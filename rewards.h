@@ -48,5 +48,12 @@ public:
     void checkCollision(Player* player) override;
 };
 
+class Diamond : public Rewards {
+    Q_OBJECT
+public:
+    Diamond(int x, int y, QObject* parent = nullptr);
+    ~Diamond() override;
+    void checkCollision(Player* player) override;
+};
 
 #endif // REWARDS_H

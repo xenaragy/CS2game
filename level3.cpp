@@ -42,35 +42,27 @@ void Level3::setupLevel() {
     const int platformHeight = 150;
     const int platformSpacingY = 80;
 
-    // Setup platforms
-    QVector<QPoint> platformPositions = {
-        {100, groundY - 2 * platformSpacingY},
-        {300, groundY - 3 * platformSpacingY},
-        {500, groundY - 4 * platformSpacingY},
-        {200, groundY - 5 * platformSpacingY},
-        {400, groundY - 6 * platformSpacingY}
+    // Define a structured layout for platforms with more horizontal spacing
+    QVector<QPair<QPoint, QString>> platformLayout = {
+        // Position, Texture path
+        { QPoint(100, groundY - 6 * platformSpacingY), ":/backgrounds/Iceplat1.png" },
+        { QPoint(400, groundY - 3 * platformSpacingY), ":/backgrounds/Iceplat2.png" },
+        { QPoint(700, groundY - 6 * platformSpacingY), ":/backgrounds/Iceplat3.png" },
+        { QPoint(250, groundY - 5 * platformSpacingY), ":/backgrounds/Iceplat1.png" },
+        { QPoint(550, groundY - 6 * platformSpacingY), ":/backgrounds/Iceplat2.png" }
     };
 
+    // Add platforms using the structured layout
+    for (const auto& platformInfo : platformLayout) {
+        QPoint pos = platformInfo.first;
+        QString texturePath = platformInfo.second;
 
-    // Add platforms
-    // Add platforms
-    QRandomGenerator* randGen = QRandomGenerator::global();
-    QStringList iceTextures = {
-        ":/backgrounds/Iceplat1.png",
-        ":/backgrounds/Iceplat2.png",
-        ":/backgrounds/Iceplat3.png"
-    };
-
-    for (const QPoint& pos : platformPositions) {
-        QString selectedTexture = iceTextures[randGen->bounded(iceTextures.size())];
-        QGraphicsPixmapItem* platform = new QGraphicsPixmapItem(QPixmap(selectedTexture).scaled(platformWidth, platformHeight));
+        QGraphicsPixmapItem* platform = new QGraphicsPixmapItem(QPixmap(texturePath).scaled(platformWidth, platformHeight));
         platform->setPos(pos);
         platform->setData(0, "platform");
         scene->addItem(platform);
         obstacles.append(platform);
     }
-
-
 
     QRandomGenerator *randomGen = QRandomGenerator::global();
     QVector<int> floorPositions = {250, 600, 950, 1300, 1650};

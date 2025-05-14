@@ -21,21 +21,23 @@ private slots:
     void startLevel3();
     void unlockLevel4();
     void startLevel4();
+    void unlockLevel5();
+    void startLevel5();
     void startLevel(int levelNumber);
-
 signals:
     void levelOneCompleted();
     void backToHome();
     void levelTwoCompleted();
     void levelThreeCompleted();
     void levelFourCompleted();
-
+    void levelFiveCompleted();
 private:
     void setupUI();
     QLabel* backgroundLabel;
     QPushButton* level2Btn;
     QPushButton* level3Btn;
     QPushButton* level4Btn;
+    QPushButton* level5Btn;
     MainWindow* gameWindow = nullptr;
 };
 

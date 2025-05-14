@@ -59,6 +59,7 @@ private:
     void setupLevel2();
     void setupLevel3();
     void setupLevel4();
+    void setupLevel5();
     void updateHealthBar();
     bool levelFinished = false;
     GameState currentState = Level1;
@@ -66,13 +67,12 @@ private slots:
     void goToHome();
     void handleLevelTwoComplete();
     void handleLevelThreeComplete();
-
 signals:
     void levelOneCompleted();
     void backToHome();
     void levelTwoCompleted();
     void levelThreeCompleted();
     void levelFourCompleted();
-
+    void levelFiveCompleted();
 };
 #endif // MAINWINDOW_H

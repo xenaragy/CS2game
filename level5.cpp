@@ -1,4 +1,4 @@
-#include "level4.h"
+#include "level5.h"
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QRandomGenerator>
@@ -9,13 +9,13 @@
 #include "rewards.h"
 #include "obstacle.h"
 
-Level4::Level4(QGraphicsScene* scene, Player* p1)
-    : Level(4, scene, p1) {}
+Level5::Level5(QGraphicsScene* scene, Player* p1)
+    : Level(5, scene, p1) {}
 
-void Level4::setupLevel() {
+void Level5::setupLevel() {
     // Remove snowflakes
     for (auto* item : scene->items()) {
-        if (dynamic_cast<Snowflake*>(item)) {
+        if (dynamic_cast<Earth*>(item)) {
             scene->removeItem(item);
             delete item;
         }
@@ -28,12 +28,12 @@ void Level4::setupLevel() {
     }
     obstacles.clear();
 
-    // Add earths
+    // Add Diamonds
     for (int i = 0; i < 30; ++i) {
         int x = 150 + i * 100;
         int y = 100 + (i % 3) * 80;
-        Earth* earth = new Earth(x, y);
-        scene->addItem(earth);
+        Diamond* diamond = new Diamond(x, y);
+        scene->addItem(diamond);
     }
 
     const int groundY = 550;
@@ -53,9 +53,9 @@ void Level4::setupLevel() {
     // Add platforms
     QRandomGenerator* randGen = QRandomGenerator::global();
     QStringList spaceTextures = {
-        ":/backgrounds/spaceplatform1.png",
-        ":/backgrounds/spaceplatform2.png",
-        ":/backgrounds/spaceplatform3.png"
+        ":/backgrounds/caveplatform1.png",
+        ":/backgrounds/caveplatform2.png",
+        ":/backgrounds/CavePlatform3.png"
     };
 
     for (const QPoint& pos : platformPositions) {
@@ -89,14 +89,14 @@ void Level4::setupLevel() {
     p1->setPosition(50, groundY - 150);
 
     // Add level message
-    Message* startMessage = Message::createLevelFourStartMessage();
+    Message* startMessage = Message::createLevelFiveStartMessage();
     startMessage->showMessage(scene, 300, 350);
 
     // Add the tiger enemy
     addEnemies();
 }
 
-void Level4::resetLevel() {
+void Level5::resetLevel() {
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
 
@@ -108,12 +108,12 @@ void Level4::resetLevel() {
 
     setupLevel();
 }
-void Level4::addEnemies() {
+void Level5::addEnemies() {
     const int groundY = 550;
 
-    // Add a single tiger enemy
-    Alien* alien = new Alien(400, groundY - 130);  // Position at x=400
-    alien->setData(0, "obstacle");
-    scene->addItem(alien);
-    obstacles.append(alien);
+    // // Add a single tiger enemy
+    // Alien* alien = new Alien(400, groundY - 130);  // Position at x=400
+    // alien->setData(0, "obstacle");
+    // scene->addItem(alien);
+    // obstacles.append(alien);
 }

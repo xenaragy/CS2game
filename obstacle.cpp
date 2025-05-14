@@ -104,7 +104,7 @@ void Waterpond::handleCollision(Player* player) {
     QList<QGraphicsItem*> collidingItemsList = collidingItems();
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player && player->canTakeDamage(1000)) {
-            player->takeDamage(100);
+            player->takeDamage(40);
             player->takeDamagePercent(0.02f);
         }
     }
@@ -150,3 +150,5 @@ void SnowBall::handleCollision(Player* player) {
         }
     }
 }
+
+

@@ -204,6 +204,18 @@ void Player::resetEarths() {
     collectedEarths = 0;
 }
 
+void Player::incrementDiamonds() {
+    collectedDiamonds++;
+}
+
+int Player::getCollectedDiamonds () const{
+    return collectedDiamonds;
+}
+
+void Player::resetDiamonds() {
+    collectedDiamonds = 0;
+}
+
 
 void Player::applyGravity() {
     if (jumpTimer->isActive()) {
@@ -277,4 +289,6 @@ void Player::resetPlayer() {
     collectedApples = 0;
     collectedSnowflakes = 0;
     dropletsCollected = 0;
+    collectedEarths = 0;
+    collectedDiamonds = 0;
 }

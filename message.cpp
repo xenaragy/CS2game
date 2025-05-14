@@ -66,3 +66,10 @@ Message* Message::createLevelFourStartMessage() {
 Message* Message::createLevelFourCompleteMessage() {
     return new Message("Space Level Completed!", 3000);
 }
+Message* Message::createLevelFiveStartMessage() {
+    return new Message("Collects all Diamonds", 3000);
+}
+
+Message* Message::createLevelFiveCompleteMessage() {
+    return new Message("Final Level Completed!", 3000);
+}

@@ -113,3 +113,28 @@ void Earth::checkCollision(Player* player)
         }
     }
 }
+
+Diamond::Diamond(int x, int y, QObject* parent)
+    : Rewards(x, y, ":/Rewards/diamond.png", 30, 30, parent)
+{
+    setData(0, "diamond");
+}
+
+Diamond::~Diamond()
+{}
+
+void Diamond::checkCollision(Player* player)
+{
+    if (m_isCollected) return;
+
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player) {
+            m_isCollected = true;
+            player->incrementDiamonds();
+            scene()->removeItem(this);
+            delete this;
+            break;
+        }
+    }
+}

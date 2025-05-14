@@ -23,9 +23,8 @@ public:
     static Message* createLevelThreeCompleteMessage();
     static Message* createLevelFourStartMessage();
     static Message* createLevelFourCompleteMessage();
-
-
-
+    static Message* createLevelFiveStartMessage();
+    static Message* createLevelFiveCompleteMessage();
 
 private:
     int displayDuration;

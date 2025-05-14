@@ -102,7 +102,6 @@ void Level2::resetLevel() {
 void Level2::addEnemies() {
     const int groundY = 550;
 
-    // Add a single tiger enemy
     Tiger* tiger = new Tiger(400, groundY - 150);  // Position at x=400
     tiger->setData(0, "obstacle");
     scene->addItem(tiger);

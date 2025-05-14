@@ -19,21 +19,24 @@ void Enemies::checkCollision(Player* player) {
     }
 }
 
-// Tiger implementation
 Tiger::Tiger(int x, int y, QObject* parent)
     : Enemies(x, y, ":/Enemies/tiger.png", parent) {
     setScale(0.8);  // Adjust scale as needed
     startX = x;
+    startY = y;     // Store Y position for respawn
     direction = 1;
-    range = 200;
+    range = 300;
     health = 100;  // Initialize with 100 health
-
     movementTimer = new QTimer(this);
     connect(movementTimer, &QTimer::timeout, this, &Tiger::patrol);
-    movementTimer->start(50);
-
+    movementTimer->start(10);
     damageTimer = new QTimer(this);
     damageTimer->setSingleShot(true);
+
+    // Add respawn timer
+    respawnTimer = new QTimer(this);
+    respawnTimer->setSingleShot(true);
+    connect(respawnTimer, &QTimer::timeout, this, &Tiger::respawn);
 }
 
 Tiger::~Tiger() {
@@ -45,13 +48,11 @@ Tiger::~Tiger() {
         damageTimer->stop();
         delete damageTimer;
     }
+    if (respawnTimer) {  // Add cleanup for respawn timer
+        respawnTimer->stop();
+        delete respawnTimer;
+    }
 }
-
-void Tiger::move() {
-    // This is your existing movement code
-    // If you already have a move implementation, keep it here
-}
-
 
 void Tiger::patrol() {
     // Patrol logic: Tiger moves left and right within a fixed range
@@ -60,27 +61,30 @@ void Tiger::patrol() {
     } else if (x() <= startX) {
         direction = 1;
     }
-
     setPos(x() + 2 * direction, y());
-    checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
+
+    if (scene()) {
+        Player* player = dynamic_cast<Player*>(scene()->focusItem());
+        if (player) {
+            checkCollision(player);
+        }
+    }
 }
 
-
-// New methods for tiger health and damage
+// Methods for tiger health and damage
 bool Tiger::takeDamage(int damage) {
     if (!canTakeDamage()) return false;
-
     health -= damage;
     if (health <= 0) {
         // Tiger is defeated
         health = 0;
         movementTimer->stop();  // Stop movement
         setVisible(false);
+        respawnTimer->start(3000);  // 5 second respawn delay
+
         return true;
     }
-
-    // Tiger was damaged but not defeated
-    damageTimer->start(500);  // Cooldown between damage
+    damageTimer->start(500);
     return false;
 }
 
@@ -92,7 +96,13 @@ bool Tiger::isAlive() const {
     return health > 0;
 }
 
+void Tiger::respawn() {
+    health = 100;
+    setPos(startX, startY);
 
+    setVisible(true);
+    movementTimer->start(20);
+}
 
 Penguin::Penguin(int x, int y, QObject* parent)
     : Enemies(x, y, "", parent)  // We'll set pixmap manually below
@@ -132,9 +142,6 @@ void Penguin::patrol() {
     checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
 }
 
-void Penguin::move() {
-    // already handled by patrol
-}
 
 bool Penguin::takeDamage(int damage) {
     if (!canTakeDamage()) return false;
@@ -193,10 +200,6 @@ void PolarBear::patrol() {
 
     setPos(x() + 2 * direction, y());
     checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
-}
-
-void PolarBear::move() {
-    // Already handled by patrol
 }
 
 bool PolarBear::takeDamage(int damage) {
@@ -258,10 +261,6 @@ void Alien::patrol() {
 
     setPos(x() + 2 * direction, y());
     checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
-}
-
-void Alien::move() {
-    // already handled by patrol
 }
 
 bool Alien::takeDamage(int damage) {

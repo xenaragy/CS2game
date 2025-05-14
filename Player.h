@@ -53,6 +53,10 @@ public:
     void incrementEarths();
     int getCollectedEarths() const;
     void resetEarths();
+    // Level 5
+    void incrementDiamonds();
+    int getCollectedDiamonds() const;
+    void resetDiamonds();
 
     // Utility
     bool canTakeDamage(int cooldownMs = 1000);
@@ -76,12 +80,11 @@ private:
     int velocityY;
     int groundY;
     int maxHealth = 100;
-
     int dropletsCollected = 0;
     int collectedApples = 0;
     int collectedSnowflakes = 0;
     int collectedEarths = 0;
-
+    int collectedDiamonds = 0;
     QPixmap standingImage;
     QPixmap runningRightImage;
     QPixmap runningLeftImage;
