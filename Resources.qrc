@@ -1,0 +1,81 @@
+<RCC>
+    <qresource prefix="/backgrounds">
+        <file>desertbackground.jpg</file>
+        <file>brownbricks.png</file>
+        <file>brownbricks copy 2.png</file>
+        <file>brownbricks copy.png</file>
+        <file>portal.png</file>
+        <file>homepage.jpeg</file>
+        <file>forrestPortal.png</file>
+        <file>ForrestBackground.png</file>
+        <file>Iceplat2.png</file>
+        <file>Iceplat1.png</file>
+        <file>Iceplat3.png</file>
+        <file>snowbackground.png</file>
+        <file>spaceplatform3.png</file>
+        <file>spaceplatfrom1.png</file>
+        <file>spaceplatform2.png</file>
+        <file>spacebackground.jpg</file>
+        <file>cavebackground.jpg</file>
+        <file>CavePlatform3.png</file>
+        <file>caveplatfrom2.png</file>
+        <file>caveplatform1.png</file>
+        <file>10Shop.png</file>
+        <file>15Shop.png</file>
+        <file>5Shop.png</file>
+        <file>shopBackground.png</file>
+    </qresource>
+    <qresource prefix="/Obstacles">
+        <file>firepit.png</file>
+        <file>quicksand.png</file>
+        <file>cactus.png</file>
+        <file>waterpond.png</file>
+        <file>poisonMushroom.png</file>
+        <file>waterdroplet.png</file>
+        <file>snowman.png</file>
+        <file>snowball.png</file>
+        <file>hole.webp</file>
+        <file>asteroid.png</file>
+    </qresource>
+    <qresource prefix="/Character">
+        <file>playersword.png</file>
+        <file>playercrouch.png</file>
+        <file>runningleft.png</file>
+        <file>runningright.png</file>
+        <file>playerstanding.png</file>
+        <file>superRun.png</file>
+        <file>playerShield.png</file>
+        <file>superRunLeft.png</file>
+        <file>playerShieldLeft.png</file>
+        <file>superJump.png</file>
+    </qresource>
+    <qresource prefix="/Rewards">
+        <file>apple.png</file>
+        <file>snowflake.png</file>
+        <file>diamond.png</file>
+        <file>earth.png</file>
+        <file>star.png</file>
+        <file>coin.png</file>
+        <file>shield.png</file>
+        <file>superattack.png</file>
+        <file>speed.png</file>
+    </qresource>
+    <qresource lang="C++" prefix="/Rewards"/>
+    <qresource prefix="/Enemies">
+        <file>tiger.png</file>
+        <file>penguin.png</file>
+        <file>polarbear.png</file>
+        <file>alien.png</file>
+        <file>caveman.png</file>
+        <file>spaceship.png</file>
+        <file>yellomonster.png</file>
+        <file>caveCreature.png</file>
+        <file>deadCaveMan.png</file>
+        <file>caveMonster.png</file>
+        <file>cavemanFight.png</file>
+        <file>bat4.png</file>
+        <file>bat3.png</file>
+        <file>bat2.jpeg</file>
+        <file>bat1.jpeg</file>
+    </qresource>
+</RCC>
