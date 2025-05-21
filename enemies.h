@@ -122,17 +122,16 @@ public:
     bool takeDamage(int damage) ;
     bool canTakeDamage() ;
     bool isAlive() const ;
-
-private slots:
     void patrol();
-
+    void setx(int x){startX = x;}
+    void setrange(int r){range = r;}
+    int     health;
 private:
     QTimer* movementTimer;
     QTimer* damageTimer;
     int     startX;
     int     direction;
     int     range;
-    int     health;
 };
 
 class Troll : public Enemies {
@@ -144,6 +143,7 @@ public:
     bool takeDamage(int damage);
     bool canTakeDamage();
     bool isAlive() const;
+    int     health;
 
 private slots:
     void patrol();
@@ -154,7 +154,6 @@ private:
     int     startX;
     int     direction;
     int     range;
-    int     health;
 };
 
 #endif // ENEMIES_H  // Make sure this line exists!

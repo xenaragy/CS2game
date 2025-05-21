@@ -12,7 +12,6 @@ Message::Message(const QString& text, int duration, QGraphicsItem* parent)
 }
 void Message::showMessage(QGraphicsScene* scene, int x, int y) {
     if (!scene) {
-        qDebug() << "Warning: Attempting to show message on null scene";
         return;
     }
 
@@ -131,5 +130,43 @@ Message* Message::HintMessagelevel4(){
     font.setPointSize(30);  // set your smaller font size here
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::red);
+    return msg;
+}
+Message* Message::HintMessagelevel5(){
+    Message* msg = new Message("Kill all monsters to proceed", 3000);
+    QFont font = msg->font();
+    font.setPointSize(30);  // set your smaller font size here
+    msg->setFont(font);
+    msg->setDefaultTextColor(Qt::red);
+    return msg;
+}
+Message* Message::killedCaveCreatureBonus() {
+    Message* msg = new Message("Health Bonus! Cave creature killed successfuly", 3000);
+
+    // Change font size internally
+    QFont font = msg->font();
+    font.setPointSize(20);  // set your smaller font size here
+    msg->setFont(font);
+    msg->setDefaultTextColor(Qt::green);
+    return msg;
+}
+Message* Message::killedTrollBonus(){
+    Message* msg = new Message("Health Bonus! Troll killed successfuly", 3000);
+
+    // Change font size internally
+    QFont font = msg->font();
+    font.setPointSize(20);  // set your smaller font size here
+    msg->setFont(font);
+    msg->setDefaultTextColor(Qt::green);
+    return msg;
+}
+Message* Message::KilledCaveManBonus(){
+    Message* msg = new Message("Health Bonus! Cave man killed successfuly", 3000);
+
+    // Change font size internally
+    QFont font = msg->font();
+    font.setPointSize(20);  // set your smaller font size here
+    msg->setFont(font);
+    msg->setDefaultTextColor(Qt::green);
     return msg;
 }

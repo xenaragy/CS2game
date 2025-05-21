@@ -272,18 +272,21 @@ void Store::purchaseSpeedBoost() {
         qDebug() << "Warning: purchaseSpeedBoost called with null player!";
         return;
     }
-if (!speedBoostButton) return;
+    if (!speedBoostButton) return;
     if (player->getCoins() >= 5) {
         player->spendCoins(5);
         player->enableSpeedBoost(30);
         MainWindow::globalCoins = player->getCoins();
         updateDisplay();
 
-        QMessageBox successMsg;
-        successMsg.setWindowTitle("Speed Boost Activated!");
-        successMsg.setText("You now move 50% faster for 30 seconds!");
-        successMsg.setIconPixmap(QPixmap(":/Rewards/speed.png").scaled(64, 64, Qt::KeepAspectRatio));
-        successMsg.exec();
+        QMessageBox* successMsg = new QMessageBox(QMessageBox::Information,
+                                                  "Speed Boost Activated!",
+                                                  "You now move 50% faster for 30 seconds!",
+                                                  QMessageBox::Ok,
+                                                  this);
+        successMsg->setIconPixmap(QPixmap(":/Rewards/speed.png").scaled(64, 64, Qt::KeepAspectRatio));
+        successMsg->setAttribute(Qt::WA_DeleteOnClose);
+        successMsg->show(); // Use show() instead of exec()
     } else {
         QMessageBox::warning(this, "Not Enough Coins",
                              "You need 5 coins to purchase Speed Boost.");
@@ -303,11 +306,14 @@ void Store::purchaseShield() {
         MainWindow::globalCoins = player->getCoins();
         updateDisplay();
 
-        QMessageBox successMsg;
-        successMsg.setWindowTitle("Shield Activated!");
-        successMsg.setText("You take 50% less damage for 30 seconds!");
-        successMsg.setIconPixmap(QPixmap(":/Rewards/shield.png").scaled(64, 64, Qt::KeepAspectRatio));
-        successMsg.exec();
+        QMessageBox* successMsg = new QMessageBox(QMessageBox::Information,
+                                                  "Shield Activated!",
+                                                  "You take 50% less damage for 30 seconds!",
+                                                  QMessageBox::Ok,
+                                                  this);
+        successMsg->setIconPixmap(QPixmap(":/Rewards/shield.png").scaled(64, 64, Qt::KeepAspectRatio));
+        successMsg->setAttribute(Qt::WA_DeleteOnClose);
+        successMsg->show(); // Use show() instead of exec()
     } else {
         QMessageBox::warning(this, "Not Enough Coins",
                              "You need 10 coins to purchase Shield.");
@@ -320,24 +326,25 @@ void Store::purchaseSuperAttack() {
         qDebug() << "Warning: purchaseSpeedBoost called with null player!";
         return;
     }
-      if (!superAttackButton) return;
+    if (!superAttackButton) return;
     if (player->getCoins() >= 15) {
         player->spendCoins(15);
         player->enableSuperAttack(30);
         MainWindow::globalCoins = player->getCoins();
         updateDisplay();
-
-        QMessageBox successMsg;
-        successMsg.setWindowTitle("Super Attack Activated!");
-        successMsg.setText("Your attacks now deal double damage for 30 seconds!");
-        successMsg.setIconPixmap(QPixmap(":/Rewards/sword.png").scaled(64, 64, Qt::KeepAspectRatio));
-        successMsg.exec();
+        QMessageBox* successMsg = new QMessageBox(QMessageBox::Information,
+                                                  "Super Attack Activated!",
+                                                  "Your attacks now deal double damage for 30 seconds!",
+                                                  QMessageBox::Ok,
+                                                  this);
+        successMsg->setIconPixmap(QPixmap(":/Rewards/superattack.png").scaled(64, 64, Qt::KeepAspectRatio));
+        successMsg->setAttribute(Qt::WA_DeleteOnClose);
+        successMsg->show(); // Use show() instead of exec()
     } else {
         QMessageBox::warning(this, "Not Enough Coins",
                              "You need 15 coins to purchase Super Attack.");
     }
 }
-
 // Add this method to catch any clicks anywhere
 void Store::mousePressEvent(QMouseEvent *event)
 {

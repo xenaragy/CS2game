@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "level.h"
+#include "Level.h"
 #include "level2.h"
 #include "level3.h"
 #include "level4.h"
@@ -871,7 +871,7 @@ void MainWindow::updateGame()
      bool canScroll = true;
 
      // For level 3 and 4, check if enemies are still alive
-     if (level && (level->getLevelNumber() == 3 || level->getLevelNumber() == 4)) {
+     if (level && (level->getLevelNumber() == 3 || level->getLevelNumber() == 4 || level->getLevelNumber() == 5)) {
          // Get player's current x position to determine which section of the level they're in
          int playerX = player->x();
 
@@ -889,18 +889,19 @@ void MainWindow::updateGame()
 
              // Check if item is within the current section
              if (item->x() >= sectionStart && item->x() < sectionEnd) {
-                 // Try dynamic cast with extra safety
-                 Penguin* penguin = nullptr;
-                 Alien* alien = nullptr;
-
                  if (level->getLevelNumber() == 3) {
-                     penguin = dynamic_cast<Penguin*>(item);
+                     Penguin* penguin = dynamic_cast<Penguin*>(item);
                      if (penguin && penguin->isAlive()) {
                          enemiesInSection++;
                      }
                  } else if (level->getLevelNumber() == 4) {
-                     alien = dynamic_cast<Alien*>(item);
+                     Alien* alien = dynamic_cast<Alien*>(item);
                      if (alien && alien->isAlive()) {
+                         enemiesInSection++;
+                     }
+                 } else if (level->getLevelNumber() == 5) {
+                     CaveCreature* cavemons = dynamic_cast<CaveCreature*>(item);
+                     if (cavemons && cavemons->isAlive()) {
                          enemiesInSection++;
                      }
                  }
@@ -921,6 +922,9 @@ void MainWindow::updateGame()
                          hintmessage->showMessage(scene, 300, 300);
                      } else if (level->getLevelNumber() == 4) {
                          Message* hintmessage = Message::HintMessagelevel4();
+                         hintmessage->showMessage(scene, 300, 300);
+                     } else if (level->getLevelNumber() == 5) {
+                         Message* hintmessage = Message::HintMessagelevel5();
                          hintmessage->showMessage(scene, 300, 300);
                      }
                  }
@@ -1117,40 +1121,28 @@ void MainWindow::handlePlayerAttacks() {
                 QPointF enemyPos = troll->pos();
                 qreal distance = QLineF(playerPos, enemyPos).length();
                 if (distance < 150) {
-                    bool killed = troll->takeDamage(25);
-                    if (killed) {
-                        scene->removeItem(troll);
-                        delete troll;
-                        player->heal(15);  // Optional bonus
-                        updateHealthBar();
-
-                        Message* msg = new Message("Troll defeated!", 2000);
-                        msg->showMessage(scene, 300, 300);
-                    }
+                    troll->takeDamage(40);
                 }
-
             }
-        }
+
 
         // CaveCreature
-        CaveCreature* creature = dynamic_cast<CaveCreature*>(item);
-        if (creature && creature->isAlive()) {
-            QPointF playerPos = player->pos();
-            QPointF enemyPos = creature->pos();
-            qreal distance = QLineF(playerPos, enemyPos).length();
-            if (distance < 150) {
-                bool killed = creature->takeDamage(25);
-                if (killed) {
-                    player->heal(10);  // Give bonus HP
-                    updateHealthBar();
-
-                    Message* msg = new Message("Cave Creature eliminated!"
-                                               "", 2000);
-                    msg->showMessage(scene, 300, 300);
+            CaveCreature* creature = dynamic_cast<CaveCreature*>(item);
+            if (creature && creature->isAlive()) {
+                QPointF playerPos = player->pos();
+                QPointF enemyPos = creature->pos();
+                qreal distance = QLineF(playerPos, enemyPos).length();
+                if (distance < 150) {
+                    bool killed = creature->takeDamage(25);
+                    if (killed) {
+                        player->heal(10);
+                        updateHealthBar();
+                        Message* kileddCreature = Message::killedCaveCreatureBonus();
+                        kileddCreature->showMessage(scene, 300, 300);
+                    }
                 }
             }
         }
-
 
         // Level 5 - Caveman
         Caveman* caveman = dynamic_cast<Caveman*>(item);
@@ -1164,8 +1156,8 @@ void MainWindow::handlePlayerAttacks() {
                     player->heal(10);
                     updateHealthBar();
                     caveman->setPixmap(QPixmap(":/Enemies/deadCaveMan.png").scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-                    Message* msg = new Message("Caveman defeated!", 2000);
-                    msg->showMessage(scene, 300, 300);
+                    Message* killedcaveman = Message::killedCaveCreatureBonus();
+                    killedcaveman->showMessage(scene, 300, 300);
                 }
             }
         }

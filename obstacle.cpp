@@ -4,7 +4,7 @@
 #include "message.h"
 #include <QTimer>
 
-               Obstacle::Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage, bool isMovable)
+Obstacle::Obstacle(const QPixmap& pixmap, int x, int y, ObstacleType type, int damage, bool isMovable)
     : QGraphicsPixmapItem(pixmap), obstacleType(type), damage(damage), movable(isMovable), speed(0)
 {
     setPos(x, y);
@@ -83,7 +83,6 @@ void Quicksand::setLevel(Level* l) {
 }
 
 
-
 Mushroom :: Mushroom(int x, int y) :
     Obstacle(QPixmap(":/Obstacles/poisonMushroom.png").scaled(50, 50), x, y, Obstacle::ObstacleType::Hazard, 10)
 {}
@@ -111,10 +110,6 @@ void Waterpond::handleCollision(Player* player) {
     }
 }
 
-
-void Waterpond::setLevel(Level* l) {
-    level = l;
-}
 
 
 Snowman::Snowman(int x, int y, QGraphicsItem* parent)
@@ -536,7 +531,7 @@ void Spaceship::move()
 }
 
 Bat::Bat(int startX, int startY)
-    : QGraphicsPixmapItem(QPixmap(":/Enemies/bat4.png").scaled(100, 100)),
+    : QGraphicsPixmapItem(QPixmap(":/Enemies/bat4.png").scaled(150, 150)),
     speed(5)
 {
     setPos(startX, startY);
@@ -568,23 +563,16 @@ void Bat::move()
         return;
     }
 
-    QList<QGraphicsItem*> collidingItems = this->collidingItems();
-    for (QGraphicsItem* item : collidingItems) {
-        Player* player = dynamic_cast<Player*>(item);
-        if (player) {
-            handleCollision(player);
-            scene()->removeItem(this);
-            deleteLater();
-            return;
-        }
-    }
 }
 
 void Bat::handleCollision(Player* player)
 {
-    if (player && player->canTakeDamage(500)) {
-        player->takeDamage(10);               // Light fixed damage
-        player->takeDamagePercent(0.05f);     // Or percent-based damage (optional)
+    QList<QGraphicsItem*> collidingItemsList = collidingItems();
+    for (QGraphicsItem* item : collidingItemsList) {
+        if (item == player && player->canTakeDamage(1000)) {
+            player->takeDamage(10);
+            player->takeDamagePercent(0.02f);
+        }
     }
 }
 

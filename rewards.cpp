@@ -1,7 +1,7 @@
 #include "rewards.h"
 #include <QGraphicsScene>
 
-              Rewards::Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent)
+Rewards::Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent)
     : QObject(parent), QGraphicsPixmapItem(), m_isCollected(false)
 {
     QPixmap rewardPixmap(imagePath);
@@ -11,8 +11,6 @@
 
 Rewards::~Rewards()
 {}
-
-
 
 
 WaterDroplet::WaterDroplet(int x, int y, QObject* parent)
@@ -26,11 +24,10 @@ WaterDroplet::~WaterDroplet()
 
 void WaterDroplet::checkCollision(Player* player)
 {
-    if (m_isCollected) return;  // Skip if already collected
+    if (m_isCollected) return;
     QList<QGraphicsItem*> collidingItemsList = collidingItems();
     for (QGraphicsItem* item : collidingItemsList) {
         if (item == player) {
-            // Mark as collected and increment the player's count
             player->incrementDroplets();
             scene()->removeItem(this);
             delete this;

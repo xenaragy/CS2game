@@ -13,30 +13,27 @@ Level2::Level2(QGraphicsScene* scene, Player* p1)
     : Level(2, scene, p1) {}
 
 void Level2::setupLevel() {
-    // Remove water droplets
     for (auto* item : scene->items()) {
         if (dynamic_cast<WaterDroplet*>(item)) {
             scene->removeItem(item);
             delete item;
         }
-    }
+    } //remove water items from previous level
 
-    // Clear previous obstacles
-    for (auto* item : obstacles) {
+    for (auto* item : obstacles) { //clear any previously existing obstacles
         scene->removeItem(item);
         delete item;
     }
     obstacles.clear();
 
-    //Add coins
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < 15; ++i) { //add coins for the level
         int x = 200 + i * 150;
         int y = 80 + (i % 5) * 60;
         Coin* coin = new Coin(x, y);
         scene->addItem(coin);
     }
-    // Add apples
-    for (int i = 0; i < 30; ++i) {
+
+    for (int i = 0; i < 30; ++i) { //add apples
         int x = 150 + i * 100;
         int y = 100 + (i % 3) * 80;
         Apple* apple = new Apple(x, y);
@@ -48,7 +45,6 @@ void Level2::setupLevel() {
     const int platformHeight = 100;
     const int platformSpacingY = 80;
 
-    // Setup platforms
     QVector<QPoint> platformPositions = {
         {100, groundY - 2 * platformSpacingY},
         {300, groundY - 3 * platformSpacingY},
@@ -56,8 +52,6 @@ void Level2::setupLevel() {
         {200, groundY - 5 * platformSpacingY},
         {400, groundY - 6 * platformSpacingY}
     };
-
-    // Add platforms
     for (const QPoint& pos : platformPositions) {
         QGraphicsPixmapItem* platform = new QGraphicsPixmapItem(QPixmap(":/backgrounds/brownbricks.png").scaled(platformWidth, platformHeight));
         platform->setPos(pos);
@@ -66,7 +60,7 @@ void Level2::setupLevel() {
         obstacles.append(platform);
     }
 
-    // Add random obstacles
+    // creating random obstacles at the floor level so that each time the level is played the obstacles are different
     QRandomGenerator *randomGen = QRandomGenerator::global();
     QVector<int> floorPositions = {250, 600, 950, 1300, 1650};
 
@@ -81,23 +75,17 @@ void Level2::setupLevel() {
             addObstacle(pond);
         }
     }
-
-    // Add player
     scene->addItem(p1);
     p1->setPosition(50, groundY - 150);
-
-    // Add level message
     Message* startMessage = Message::createLevelTwoStartMessage();
     startMessage->showMessage(scene, 300, 350);
-
-    // Add the tiger enemy
     addEnemies();
 }
 
 void Level2::resetLevel() {
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
-
+    p1->resetApples();
     for (auto* item : scene->items()) {
         Tiger* tiger = dynamic_cast<Tiger*>(item);
         Apple* apple = dynamic_cast<Apple*>(item);

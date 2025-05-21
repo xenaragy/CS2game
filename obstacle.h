@@ -65,9 +65,6 @@ public:
     Waterpond(int x, int y);
     void handleCollision(Player* player) override;
     void setLevel(Level* level);
-
-private:
-    Level* level;
 };
 
 

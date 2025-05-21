@@ -31,6 +31,10 @@ public:
     static Message* killedAlienBonus();
     static Message* HintMessagelevel3();
     static Message* HintMessagelevel4();
+    static Message* HintMessagelevel5();
+    static Message* killedCaveCreatureBonus();
+    static Message* killedTrollBonus();
+    static Message* KilledCaveManBonus();
     void onTimeout();
 
 

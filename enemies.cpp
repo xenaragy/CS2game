@@ -356,59 +356,99 @@ bool Alien::isAlive() const {
     return health > 0;
 }
 CaveCreature::CaveCreature(int x, int y, QObject* parent)
-    : Enemies(x, y, "", parent)  // pixmap set below
+    : Enemies(x, y, "", parent)
 {
+    // Reduce the size significantly from 280x280 to match Alien (70x70)
     QPixmap pix(":/Enemies/caveCreature.png");
     setPixmap(pix.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
     setPos(x, y);
+    setZValue(10); // Make sure it's visible above other elements
 
-    startX    = x;
+    startX = x;
     direction = 1;
-    range     = 30;   // patrol range
-    health    = 50;   // hit points
+    range = 30;
+    health = 50;
 
     movementTimer = new QTimer(this);
     connect(movementTimer, &QTimer::timeout, this, &CaveCreature::patrol);
-    movementTimer->start(70);  // patrol speed
+    movementTimer->start(70);
 
     damageTimer = new QTimer(this);
     damageTimer->setSingleShot(true);
 }
 
 CaveCreature::~CaveCreature() {
-    if (movementTimer) movementTimer->stop();
-    if (damageTimer)   damageTimer->stop();
+    if (movementTimer) {
+        movementTimer->stop();
+        delete movementTimer;
+        movementTimer = nullptr;
+    }
+
+    if (damageTimer) {
+        damageTimer->stop();
+        delete damageTimer;
+        damageTimer = nullptr;
+    }
 }
 
 void CaveCreature::patrol() {
-    if      (x() >= startX + range) direction = -1;
-    else if (x() <= startX)         direction =  1;
+    if (health <= 0) return; // Skip if dead
+
+    if (x() >= startX + range) direction = -1;
+    else if (x() <= startX) direction = 1;
 
     setPos(x() + 2 * direction, y());
-    checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
+
+    if (scene()) {
+        Player* player = dynamic_cast<Player*>(scene()->focusItem());
+        if (player) {
+            checkCollision(player);
+        }
+    }
 }
 
-bool CaveCreature::takeDamage(int dmg) {
+bool CaveCreature::takeDamage(int damage) {
     if (!canTakeDamage()) return false;
 
-    health -= dmg;
+    // Check if player has super attack
+    Player* player = nullptr;
+    if (scene()) {
+        player = dynamic_cast<Player*>(scene()->focusItem());
+        if (player && player->hasSuperAttack()) {
+            damage *= 2; // Double damage with super attack
+        }
+    }
+
+    health -= damage;
 
     if (health <= 0) {
+        // Enemy is defeated
         health = 0;
+        movementTimer->stop();  // Stop movement
+        setVisible(false);      // Hide rather than delete immediately
 
-        // Remove from scene on death
-        if (scene()) {
-            scene()->removeItem(this);
+        // Reward coins when defeated
+        if (player) {
+            // Bonus coins for super attack kill
+            if (player->hasSuperAttack()) {
+                player->incrementCoins(3);
+                Message* bonusMsg = new Message("+3 Coins: Super Kill Bonus!", 1500);
+                bonusMsg->showMessage(scene(), 300, 200);
+            } else {
+                player->incrementCoins(1);
+                Message* coinMsg = new Message("+1 Coin", 1000);
+                coinMsg->showMessage(scene(), 300, 200);
+            }
         }
-        deleteLater();  // Schedule deletion
+
+        // CRITICAL: Do NOT delete here - just return true and let cleanup happen later
         return true;
     }
 
     damageTimer->start(500);
     return false;
 }
-
 
 bool CaveCreature::canTakeDamage() {
     return !damageTimer->isActive();
@@ -418,65 +458,80 @@ bool CaveCreature::isAlive() const {
     return health > 0;
 }
 
-Caveman::Caveman(int x, int y, QObject* parent)
-    : Enemies(x, y + 60, ":/Enemies/caveman.png", parent)
-{
-    QPixmap pix(":/Enemies/caveman.png");
-    setPixmap(pix.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+// Caveman::Caveman(int x, int y, QObject* parent)
+//     : Enemies(x, y + 60, ":/Enemies/caveman.png", parent)
+// {
+//     QPixmap pix(":/Enemies/caveman.png");
+//     setPixmap(pix.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
-    startX    = x;
-    direction = 1;
-    range     = 30;
-    health    = 50;
+//     startX    = x;
+//     direction = 1;
+//     range     = 30;
+//     health    = 50;
 
-    movementTimer = new QTimer(this);
-    connect(movementTimer, &QTimer::timeout, this, &Caveman::patrol);
-    movementTimer->start(70);
+//     movementTimer = new QTimer(this);
+//     connect(movementTimer, &QTimer::timeout, this, &Caveman::patrol);
+//     movementTimer->start(70);
 
-    damageTimer = new QTimer(this);
-    damageTimer->setSingleShot(true);
-}
+//     damageTimer = new QTimer(this);
+//     damageTimer->setSingleShot(true);
+// }
 
-Caveman::~Caveman() {
-    if (movementTimer) movementTimer->stop();
-    if (damageTimer)   damageTimer->stop();
-}
+// Caveman::~Caveman() {
+//     if (movementTimer) movementTimer->stop();
+//     if (damageTimer)   damageTimer->stop();
+// }
 
-void Caveman::patrol() {
-    if      (x() >= startX + range) direction = -1;
-    else if (x() <= startX)         direction =  1;
+// void Caveman::patrol() {
+//     // Get the player
+//     Player* player = dynamic_cast<Player*>(scene()->focusItem());
+//     if (!player) return;
 
-    setPos(x() + 2 * direction, y());
-    checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
-}
+//     // Calculate direction to player
+//     qreal playerX = player->x();
+//     qreal distance = playerX - x();
 
-bool Caveman::takeDamage(int dmg) {
-    if (!canTakeDamage()) return false;
+//     // Determine direction (+1 for right, -1 for left)
+//     direction = (distance > 0) ? 1 : -1;
 
-    health -= dmg;
+//     // Debug output
+//     qDebug() << "Caveman at" << x() << "moving toward player at" << playerX
+//              << "direction:" << direction;
 
-    if (health <= 0) {
-        health = 0;
-        movementTimer->stop();
+//     // Move toward player at a reasonable speed
+//     setPos(x() + 3 * direction, y());
 
-        // Switch to dead sprite
-        QPixmap deadPixmap(":/Enemies/deadCaveMan.png");
-        setPixmap(deadPixmap.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+//     // Check for collision with player
+//     checkCollision(player);
+// }
 
-        return true;  // indicate caveman was killed
-    }
+// bool Caveman::takeDamage(int dmg) {
+//     if (!canTakeDamage()) return false;
 
-    damageTimer->start(500);
-    return false;
-}
+//     health -= dmg;
 
-bool Caveman::canTakeDamage() {
-    return !damageTimer->isActive();
-}
+//     if (health <= 0) {
+//         health = 0;
+//         movementTimer->stop();
 
-bool Caveman::isAlive() const {
-    return health > 0;
-}
+//         // Switch to dead sprite
+//         QPixmap deadPixmap(":/Enemies/deadCaveMan.png");
+//         setPixmap(deadPixmap.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+//         return true;  // indicate caveman was killed
+//     }
+
+//     damageTimer->start(500);
+//     return false;
+// }
+
+// bool Caveman::canTakeDamage() {
+//     return !damageTimer->isActive();
+// }
+
+// bool Caveman::isAlive() const {
+//     return health > 0;
+// }
 
 Troll::Troll(int x, int y, QObject* parent)
     : Enemies(x, y + 60, ":/Enemies/caveMonster.png", parent)
@@ -510,11 +565,33 @@ void Troll::patrol() {
     checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
 }
 
-bool Troll::takeDamage(int dmg) {
+bool Troll::takeDamage(int damage) {
     if (!canTakeDamage()) return false;
-    health -= dmg;
+    // Check if player has super attack
+    Player* player = dynamic_cast<Player*>(scene()->focusItem());
+    if (player && player->hasSuperAttack()) {
+        damage *= 2; // Double damage with super attack
+    }
+    health -= damage;
     if (health <= 0) {
-        movementTimer->stop();
+        // Enemy is defeated
+        health = 0;
+        movementTimer->stop();  // Stop movement
+        setVisible(false);     // Hide it, don't delete it yet
+
+        // Reward coins when defeated
+        if (player) {
+            // Bonus coins for super attack kill
+            if (player->hasSuperAttack()) {
+                player->incrementCoins(3);
+                Message* bonusMsg = new Message("+3 Coins: Super Kill Bonus!", 1500);
+                bonusMsg->showMessage(scene(), 300, 200);
+            } else {
+                player->incrementCoins(1);
+                Message* coinMsg = new Message("+1 Coin", 1000);
+                coinMsg->showMessage(scene(), 300, 200);
+            }
+        }
         return true;
     }
     damageTimer->start(500);
@@ -526,5 +603,78 @@ bool Troll::canTakeDamage() {
 }
 
 bool Troll::isAlive() const {
+    return health > 0;
+}
+
+Caveman::Caveman(int x, int y, QObject* parent)
+    : Enemies(x, y + 60, ":/Enemies/caveman.png", parent) // Same pattern as troll
+{
+    QPixmap pix(":/Enemies/caveman.png");
+    setPixmap(pix.scaled(280, 280, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    startX    = x;
+    direction = 1;
+    range     = 40;
+    health    = 80;
+
+    movementTimer = new QTimer(this);
+    connect(movementTimer, &QTimer::timeout, this, &Caveman::patrol);
+    movementTimer->start(70);
+
+    damageTimer = new QTimer(this);
+    damageTimer->setSingleShot(true);
+}
+
+Caveman::~Caveman() {
+    if (movementTimer) movementTimer->stop();
+    if (damageTimer)   damageTimer->stop();
+}
+
+void Caveman::patrol() {
+    if      (x() >= startX + range) direction = -1;
+    else if (x() <= startX)         direction =  1;
+
+    setPos(x() + 2 * direction, y());
+    checkCollision(dynamic_cast<Player*>(scene()->focusItem()));
+}
+
+bool Caveman::takeDamage(int damage) {
+    if (!canTakeDamage()) return false;
+    // Check if player has super attack
+    Player* player = dynamic_cast<Player*>(scene()->focusItem());
+    if (player && player->hasSuperAttack()) {
+        damage *= 2; // Double damage with super attack
+    }
+    health -= damage;
+    if (health <= 0) {
+        // Enemy is defeated
+        health = 0;
+        movementTimer->stop();  // Stop movement
+        setVisible(false);     // Hide it, don't delete it yet
+
+        // Reward coins when defeated
+        if (player) {
+            // Bonus coins for super attack kill
+            if (player->hasSuperAttack()) {
+                player->incrementCoins(3);
+                Message* bonusMsg = new Message("+3 Coins: Super Kill Bonus!", 1500);
+                bonusMsg->showMessage(scene(), 300, 200);
+            } else {
+                player->incrementCoins(1);
+                Message* coinMsg = new Message("+1 Coin", 1000);
+                coinMsg->showMessage(scene(), 300, 200);
+            }
+        }
+        return true;
+    }
+    damageTimer->start(500);
+    return false;
+}
+
+bool Caveman::canTakeDamage() {
+    return !damageTimer->isActive();
+}
+
+bool Caveman::isAlive() const {
     return health > 0;
 }

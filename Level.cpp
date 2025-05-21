@@ -9,7 +9,6 @@
 #include "Message.h"
 
 
-
 Level::Level(int number, QGraphicsScene* scene, Player* p1)
     : scene(scene), p1(p1), levelNumber(number) {}
 
@@ -60,6 +59,7 @@ void Level::setupLevel()
             obstacles.append(platform);
         }
 
+        //adding random obstacles
         QVector<int> floorPositions = {250, 600, 950, 1300, 1650};
         for (int pos : floorPositions) {
             int randObstacle = randomGen->bounded(3);
@@ -80,7 +80,6 @@ void Level::setupLevel()
     }
     scene->addItem(p1);
     p1->setPosition(50, groundY - 100);
-
     if (levelNumber == 1) {
         Message* startMessage = Message::createLevelOneStartMessage();
         startMessage->showMessage(scene, 300, 350);
@@ -96,14 +95,20 @@ void Level::addObstacle(QGraphicsItem* obstacle) {
 
 
 void Level::resetLevel() {
-
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
     p1->setDropletsCollected(0);
+    for (auto* item : scene->items()) {
+        Fire* fire = dynamic_cast<Fire*>(item);
+        Cactus* cactus = dynamic_cast<Cactus*>(item);
+        WaterDroplet* droplet = dynamic_cast<WaterDroplet*>(item);
+        Quicksand* sand = dynamic_cast<Quicksand*>(item);
+        Coin* coin = dynamic_cast<Coin*>(item);
 
-    for (auto* item : obstacles) {
-        scene->removeItem(item);
-        delete item;
+        if (fire || cactus || droplet || sand || coin) {
+            scene->removeItem(item);
+            delete item;
+        }
     }
     obstacles.clear();
     setupLevel();

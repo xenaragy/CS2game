@@ -31,14 +31,14 @@ public:
     void checkBatAttack();
     void startBatAttack();
     void spawnBat();
-    void startBattle();
-    void endBattle();
-
-    bool isCinematicPlaying() const { return cinematicPlaying; }
+ //   void startBattle();
+  //  void endBattle();
+    void startTrollBattle();
+ //   bool isCinematicPlaying() const { return cinematicPlaying; }
+      void killTroll();
 
 private slots:
-    void autoFight(); // Connected to fight timer
-    void autoTrollFight();
+    //void autoFight(); // Connected to fight timer
 private:
     QTimer* batTimer;
     bool batAttackActive;
@@ -62,8 +62,8 @@ private:
     QTransform origTransform;
 
     // Threshold for starting caveman and troll attack
-    static constexpr int diamondsThreshold = 30;
-    static constexpr int trollThreshold = 20;
+    const int diamondsThreshold = 30;
+    const int trollThreshold = 20;
 
     // Obstacles list for management
     QList<QGraphicsItem*> obstacles;
