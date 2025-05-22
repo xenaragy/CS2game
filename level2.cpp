@@ -86,6 +86,11 @@ void Level2::resetLevel() {
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
     p1->resetApples();
+    for (auto* item : obstacles) {
+        scene->removeItem(item);
+        delete item;
+    }
+    obstacles.clear();
     for (auto* item : scene->items()) {
         Tiger* tiger = dynamic_cast<Tiger*>(item);
         Apple* apple = dynamic_cast<Apple*>(item);
@@ -105,7 +110,7 @@ void Level2::resetLevel() {
 void Level2::addEnemies() {
     const int groundY = 550;
 
-    Tiger* tiger = new Tiger(400, groundY - 150);  // Position at x=400
+    Tiger* tiger = new Tiger(400, groundY - 150);
     tiger->setData(0, "obstacle");
     scene->addItem(tiger);
     obstacles.append(tiger);

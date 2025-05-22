@@ -42,11 +42,9 @@ public:
     void setLevel(int level);
     void nextLevel();
     void updateLevelTimer(int seconds);
-    // Add to mainwindow.h in public section
     Level* getLevel() const { return level; }
     Player* previousPlayer;
     static int globalCoins;
-
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
@@ -87,11 +85,9 @@ private:
     void pauseGame();
     void resumeGame();
     QGraphicsTextItem* pauseText = nullptr;
-
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
-
 private slots:
     void goToHome();
     void handleLevelTwoComplete();

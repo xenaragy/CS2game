@@ -5,7 +5,7 @@
 #include <QGraphicsPixmapItem>
 #include "Player.h"
 
-            class Rewards : public QObject, public QGraphicsPixmapItem {
+class Rewards : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
     Rewards(int x, int y, const QString& imagePath, int width, int height, QObject* parent = nullptr);

@@ -8,15 +8,14 @@
 
 
 class Message : public QGraphicsTextItem {
-        Q_OBJECT
+    Q_OBJECT
 public:
     Message(const QString& text, int duration = 3000, QGraphicsItem* parent = nullptr);
     void showMessage(QGraphicsScene* scene, int x, int y);
 
-    static Message* createLevelStartMessage(int levelNumber);
+    static Message* createLevelStartMessage(int levelNumber); //static allows us to create messages without calling an instance of the object
     static Message* createLevelCompleteMessage(int levelNumber);
     static Message* createGameOverMessage();
-
     static Message* createLevelOneStartMessage();
     static Message* createLevelOneCompleteMessage();
     static Message* createLevelTwoStartMessage();
@@ -36,8 +35,6 @@ public:
     static Message* killedTrollBonus();
     static Message* KilledCaveManBonus();
     void onTimeout();
-
-
 private:
     int displayDuration;
     QGraphicsScene* scene = nullptr;

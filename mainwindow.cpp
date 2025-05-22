@@ -10,7 +10,6 @@
 #include "enemies.h"
 #include "home.h"
 #include "ui_mainwindow.h"
-#include <QDebug>
 #include <QTimer>
 #include <QFont>
 #include <QPixmap>
@@ -23,12 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    // Add this line to ensure keyboard focus
     this->setFocusPolicy(Qt::StrongFocus);
     setupLevel1();
     setWindowTitle("Desert Adventure Game");
     setFixedSize(800, 600);
-
     scene = nullptr;
     view = nullptr;
     player = nullptr;
@@ -38,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
     healthOutline = nullptr;
     bg1 = nullptr;
     bg2 = nullptr;
-
-    // Initialize new pointers
     store = nullptr;
     storeButton = nullptr;
     coinIcon = nullptr;
@@ -47,51 +42,67 @@ MainWindow::MainWindow(QWidget *parent)
     speedBoostIcon = nullptr;
     shieldIcon = nullptr;
     superAttackIcon = nullptr;
-
-    // Initialize other variables
     levelFinished = false;
 }
 int MainWindow::globalCoins = 0;
 MainWindow::~MainWindow()
 {
     qDebug() << "MainWindow destructor called";
-
-    // Delete UI first
-    delete ui;
-
-    // Delete other objects safely
-    if (scene) {
-        delete scene;
-        scene = nullptr;
+    // Stop all timers first to prevent callbacks during destruction
+    QList<QTimer*> allTimers = findChildren<QTimer*>();
+    for (QTimer* timer : allTimers) {
+        if (timer) {
+            timer->stop();
+            timer->disconnect();
+        }
     }
-
-    if (view) {
-        // Don't delete view as it's a child of this and will be deleted automatically
-        view = nullptr;
-    }
-
-    if (player) {
-        // Player should be deleted with scene
-        player = nullptr;
-    }
-
+    // Clean up level first (it might have running timers)
     if (level) {
+        // If it's Level4, stop all its timers
+        if (level->getLevelNumber() == 4) {
+            class Level4* level4 = dynamic_cast<class Level4*>(level);
+            if (level4) {
+                level4->stopAllTimers();
+            }
+        }
         delete level;
         level = nullptr;
     }
-
+    // Delete store safely
     if (store) {
         delete store;
         store = nullptr;
     }
-
+    // Clear scene before deleting it
+    if (scene) {
+        scene->clear();
+        delete scene;
+        scene = nullptr;
+    }
+    // Delete UI last
+    if (ui) {
+        delete ui;
+        ui = nullptr;
+    }
+    // Set other pointers to null for safety
+    view = nullptr;
+    player = nullptr;
+    previousPlayer = nullptr;
+    healthBar = nullptr;
+    healthOutline = nullptr;
+    bg1 = nullptr;
+    bg2 = nullptr;
+    storeButton = nullptr;
+    coinIcon = nullptr;
+    coinCountLabel = nullptr;
+    speedBoostIcon = nullptr;
+    shieldIcon = nullptr;
+    superAttackIcon = nullptr;
 }
 
 void MainWindow::setLevel(int levelNumber) {
 
-    // Clean up previous level if needed
     if (scene) {
-        // Instead of deleting immediately, schedule deletion for later
         scene->clear();
         QTimer::singleShot(0, this, [this]() {
             if (scene) {
@@ -102,8 +113,6 @@ void MainWindow::setLevel(int levelNumber) {
     } else {
         scene = nullptr;
     }
-
-    // Create a fresh scene for the new level
     if (levelNumber == 1) {
         setupLevel1();
     } else if (levelNumber == 2) {
@@ -116,11 +125,7 @@ void MainWindow::setLevel(int levelNumber) {
         setupLevel5();
     }
 
-    // Reset level state
     levelFinished = false;
-
-    // Show the window
-    //show();
 }
 
 
@@ -213,10 +218,10 @@ void MainWindow::setupLevel1()
     levelFinished = false;
 
     QTimer* timer = new QTimer(this);
-    timer->setObjectName("gameTimer"); // Give it a name
+    timer->setObjectName("gameTimer"); // updating game timer
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
-
+    //control label
     QLabel* controlsLabel = new QLabel("Controls: ← → to move, ↑ to jump, A to attack, R to restart, E to exit, P to pause", this);
     controlsLabel->setStyleSheet("color: white; background-color: rgba(0, 0, 0, 100);");
     controlsLabel->setAlignment(Qt::AlignCenter);
@@ -313,8 +318,6 @@ void MainWindow::setupLevel2() {
     scoreText->setStyleSheet("color: black; font-weight: bold;");
     scoreText->move(200, 30);
     scoreText->resize(100, 30);
-
-    // Reset player state explicitly
     levelFinished = false;
     player->resetDroplets();
     player->resetApples();
@@ -322,7 +325,7 @@ void MainWindow::setupLevel2() {
     player->setHealth(100);
 
     QTimer* timer = new QTimer(this);
-    timer->setObjectName("gameTimer"); // Give it a name
+    timer->setObjectName("gameTimer");
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
 
@@ -331,23 +334,19 @@ void MainWindow::setupLevel2() {
     controlsLabel->setAlignment(Qt::AlignCenter);
     controlsLabel->setGeometry(0, height() - 30, width(), 30);
 
-    // Create store button
     storeButton = new QPushButton("Shop", this);
     storeButton->setGeometry(700, 70, 80, 30);
     storeButton->setStyleSheet("background-color: gold; font-weight: bold;");
     connect(storeButton, &QPushButton::clicked, this, &MainWindow::openStore);
 
-    // Create store instance
+
     if (player) {
         store = new Store(player, this);
     }
-
-    qDebug() << "Level 2 setup complete!";
 }
 
 void MainWindow::setupLevel3() {
 
-    // If scene already exists, clean it up
     if (scene) {
         scene->clear();
         delete scene;
@@ -384,14 +383,12 @@ void MainWindow::setupLevel3() {
     player->setFocus();
     player->setPosition(100, 400);
 
-    // Clean up old level instance if it exists
     if (level) {
         delete level;
     }
     level = new class Level3(scene, player);
     level->setupLevel();
 
-    // Health bar UI
     healthOutline = new QGraphicsRectItem(0, 0, 200, 20);
     healthOutline->setPen(QPen(Qt::black));
     scene->addItem(healthOutline);
@@ -402,7 +399,6 @@ void MainWindow::setupLevel3() {
     healthOutline->setPos(590, 40);
     healthBar->setPos(590, 40);
 
-    // Update level and score display
     levelText = new QLabel("Level: 3", this);
     levelText->setStyleSheet("color: black; font-weight: bold;");
     levelText->move(50, 30);
@@ -431,7 +427,6 @@ void MainWindow::setupLevel3() {
     coinCountLabel->move(85, 70);
     coinCountLabel->resize(100, 30);
 
-    // Reset player state explicitly
     levelFinished = false;
     player->resetDroplets();
     player->resetApples();
@@ -439,7 +434,7 @@ void MainWindow::setupLevel3() {
     player->setHealth(100);
 
     QTimer* timer = new QTimer(this);
-    timer->setObjectName("gameTimer"); // Give it a name
+    timer->setObjectName("gameTimer");
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
 
@@ -448,16 +443,12 @@ void MainWindow::setupLevel3() {
     controlsLabel->setAlignment(Qt::AlignCenter);
     controlsLabel->setGeometry(0, height() - 30, width(), 30);
 
-    // Create store button
     storeButton = new QPushButton("Shop", this);
     storeButton->setGeometry(700, 70, 80, 30);
     storeButton->setStyleSheet("background-color: gold; font-weight: bold;");
     connect(storeButton, &QPushButton::clicked, this, &MainWindow::openStore);
-
-    // Create store instance
     store = new Store(player, this);
 
-    qDebug() << "Level 3 setup complete!";
 }
 
 void MainWindow::setupLevel4() {
@@ -482,7 +473,6 @@ void MainWindow::setupLevel4() {
     view->setFocusPolicy(Qt::NoFocus);
     setCentralWidget(view);
 
-    // Create timer label
     levelTimerLabel = new QLabel("Time: 01:30", this);
     levelTimerLabel->setStyleSheet("color: white; font-weight: bold; font-size: 16px;");
     levelTimerLabel->move(650, 10);
@@ -549,7 +539,6 @@ void MainWindow::setupLevel4() {
     coinCountLabel->move(85, 70);
     coinCountLabel->resize(100, 30);
 
-    // Reset player state explicitly
     levelFinished = false;
     player->resetDroplets();
     player->resetApples();
@@ -558,7 +547,7 @@ void MainWindow::setupLevel4() {
     player->setHealth(100);
 
     QTimer* timer = new QTimer(this);
-    timer->setObjectName("gameTimer"); // Give it a name
+    timer->setObjectName("gameTimer");
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
 
@@ -567,16 +556,12 @@ void MainWindow::setupLevel4() {
     controlsLabel->setAlignment(Qt::AlignCenter);
     controlsLabel->setGeometry(0, height() - 30, width(), 30);
 
-    // Create store button
     storeButton = new QPushButton("Shop", this);
     storeButton->setGeometry(700, 70, 80, 30);
     storeButton->setStyleSheet("background-color: gold; font-weight: bold;");
     connect(storeButton, &QPushButton::clicked, this, &MainWindow::openStore);
 
-    // Create store instance
     store = new Store(player, this);
-
-    qDebug() << "Level 4 setup complete!";
 }
 
 void MainWindow::setupLevel5() {
@@ -661,7 +646,6 @@ void MainWindow::setupLevel5() {
     coinCountLabel->move(85, 70);
     coinCountLabel->resize(100, 30);
 
-    // Reset player state explicitly
     levelFinished = false;
     player->resetDroplets();
     player->resetApples();
@@ -671,7 +655,7 @@ void MainWindow::setupLevel5() {
     player->setHealth(100);
 
     QTimer* timer = new QTimer(this);
-    timer->setObjectName("gameTimer"); // Give it a name
+    timer->setObjectName("gameTimer");
     connect(timer, &QTimer::timeout, this, &MainWindow::updateGame);
     timer->start(16);
 
@@ -680,13 +664,10 @@ void MainWindow::setupLevel5() {
     controlsLabel->setAlignment(Qt::AlignCenter);
     controlsLabel->setGeometry(0, height() - 30, width(), 30);
 
-    // Create store button
     storeButton = new QPushButton("Shop", this);
     storeButton->setGeometry(700, 70, 80, 30);
     storeButton->setStyleSheet("background-color: gold; font-weight: bold;");
     connect(storeButton, &QPushButton::clicked, this, &MainWindow::openStore);
-
-    // Create store instance
     store = new Store(player, this);
 
 }
@@ -721,9 +702,8 @@ void MainWindow::showGameOver() {
 
     // Stop all timers in the level to prevent further callbacks
     if (level && level->getLevelNumber() == 4) {
-        class Level4* level4 = static_cast<class Level4*>(level);
+        class Level4* level4 = dynamic_cast<class Level4*>(level);
         if (level4) {
-            // Stop all timers explicitly
             level4->stopAllTimers();
         }
     }
@@ -742,19 +722,32 @@ void MainWindow::showGameOver() {
     resetTimer->setSingleShot(true);
 
     connect(resetTimer, &QTimer::timeout, [this, gameOver, resetTimer]() {
-        // Remove game over text
-        if (scene && gameOver) {
+        // Remove game over text safely
+        if (scene && gameOver && scene->items().contains(gameOver)) {
             scene->removeItem(gameOver);
             delete gameOver;
         }
 
-        // Reset level only once
+        // Reset level only if it still exists and is valid
         if (level) {
-            level->resetLevel();
+            try {
+                // Verify the level pointer is still valid before calling methods
+                int levelNum = level->getLevelNumber();  // Test access first
+                level->resetLevel();
 
-            // Reset timer display for level 4
-            if (level->getLevelNumber() == 4 && levelTimerLabel) {
-                updateLevelTimer(90);
+                // Reset timer display for level 4
+                if (levelNum == 4 && levelTimerLabel) {
+                    levelTimerLabel->setText("Time: 01:30");  // Reset to 1:30
+                    levelTimerLabel->show();  // Make sure it's visible
+                }
+
+                // Reset timer display for other levels if needed
+                else if (levelTimerLabel) {
+                    levelTimerLabel->hide();  // Hide timer for non-timed levels
+                }
+            } catch (...) {
+                // If any exception occurs, just skip the reset
+                qDebug() << "Exception during level reset, skipping";
             }
         }
 
@@ -769,23 +762,20 @@ void MainWindow::showGameOver() {
     resetTimer->start(2000);
 }
 
-
 void MainWindow::resetAfterGameOver() {
-    // First reset player state
     player->resetPlayer();
     resetGameState();
-
-    // Then reset level
     level->resetLevel();
 }
 
+
 void MainWindow::updateScore() {
     if (levelFinished) return;
-
+    if (!level) {
+        return;
+    }
     int collected = 0;
     int requiredAmount = 20;
-
-    // Determine what collectibles to count based on level
     if (level->getLevelNumber() == 1) {
         collected = player->getCollectedDroplets();
     } else if (level->getLevelNumber() == 2) {
@@ -800,39 +790,43 @@ void MainWindow::updateScore() {
         collected = player->getCollectedDiamonds();
         requiredAmount = 40;
     }
-
-    scoreText->setText(QString::number(collected) + "/" + QString::number(requiredAmount));
-
+    if (scoreText) {
+        scoreText->setText(QString::number(collected) + "/" + QString::number(requiredAmount));
+    }
     if (collected >= requiredAmount) {
-        qDebug() << "Level completed with" << collected << "items!";
         levelFinished = true;
-
-        // Show appropriate completion message
         if (level->getLevelNumber() == 1) {
             Message* endMessage = Message::createLevelOneCompleteMessage();
-            endMessage->showMessage(scene, 300, 300);
-            emit levelOneCompleted();  // Signal to unlock level 2
+            if (endMessage && scene) {
+                endMessage->showMessage(scene, 300, 300);
+            }
+            emit levelOneCompleted();
         } else if (level->getLevelNumber() == 2) {
             Message* endMessage = Message::createLevelTwoCompleteMessage();
-            endMessage->showMessage(scene, 300, 300);
-            emit levelTwoCompleted();  // Signal to unlock level 3
+            if (endMessage && scene) {
+                endMessage->showMessage(scene, 300, 300);
+            }
+            emit levelTwoCompleted();
         } else if (level->getLevelNumber() == 3) {
             Message* endMessage = Message::createLevelThreeCompleteMessage();
-            endMessage->showMessage(scene, 300, 300);
-            emit levelThreeCompleted();  // Signal to unlock level 4
+            if (endMessage && scene) {
+                endMessage->showMessage(scene, 300, 300);
+            }
+            emit levelThreeCompleted();
         } else if (level->getLevelNumber() == 4) {
             Message* endMessage = Message::createLevelFourCompleteMessage();
-            endMessage->showMessage(scene, 300, 300);
-            emit levelFourCompleted();  // Signal for game completion
+            if (endMessage && scene) {
+                endMessage->showMessage(scene, 300, 300);
+            }
+            emit levelFourCompleted();
         } else if (level->getLevelNumber() == 5) {
             Message* endMessage = Message::createLevelFiveCompleteMessage();
-            endMessage->showMessage(scene, 300, 300);
-            emit levelFiveCompleted();  // Signal for game completion
+            if (endMessage && scene) {
+                endMessage->showMessage(scene, 300, 300);
+            }
+            emit levelFiveCompleted();
         }
-
-        // Always return to home screen after completing any level
         QTimer::singleShot(4000, this, [this]() {
-            qDebug() << "Emitting backToHome signal after level completion";
             emit backToHome();
         });
     }
@@ -842,98 +836,78 @@ void MainWindow::updateGame()
     if (gamePaused) {
         return;
     }
-
-    // Add static flag to prevent re-entry
     static bool updatingGame = false;
-
-    // If already updating, exit to prevent recursive calls
     if (updatingGame) {
         return;
     }
-
-    // Set the flag
     updatingGame = true;
 
     if (player->y() > 600 || player->getHealth() <= 0) {
         showGameOver();  // Show game over message
         player->setPosition(100, 400);  // Reset player position
         updatingGame = false;  // Reset the flag
-        return;  // Skip the rest of updateGame
+        return;
     }
-     if (!player->hasFocus() && !player->isFrozenBySpaceship()) {
-        player->setFocus();
+    if (!player->hasFocus() && !player->isFrozenBySpaceship()) {
+        player->setFocus(); //unfreeze
     }
+    handlePlayerAttacks();
+    bool canScroll = true; //closing scroll screen for certain levels
+    // For level 3 and 4, check if enemies are still alive before activating scroll screen
+    if (level && (level->getLevelNumber() == 3 || level->getLevelNumber() == 4 || level->getLevelNumber() == 5)) {
+        int playerX = player->x();
+        // Check for enemies in the player's current view section
+        int sectionStart = (playerX / 800) * 800;
+        int sectionEnd = sectionStart + 800;
+        int enemiesInSection = 0;
+        for (QGraphicsItem* item : scene->items()) {
+            if (!item) continue;
 
-     // Handle player attacks
-     handlePlayerAttacks();
+            if (item->x() >= sectionStart && item->x() < sectionEnd) {
+                if (level->getLevelNumber() == 3) {
+                    Penguin* penguin = dynamic_cast<Penguin*>(item);
+                    if (penguin && penguin->isAlive()) {
+                        enemiesInSection++;
+                    }
+                } else if (level->getLevelNumber() == 4) {
+                    Alien* alien = dynamic_cast<Alien*>(item);
+                    if (alien && alien->isAlive()) {
+                        enemiesInSection++;
+                    }
+                } else if (level->getLevelNumber() == 5) {
+                    CaveCreature* cavemons = dynamic_cast<CaveCreature*>(item);
+                    if (cavemons && cavemons->isAlive()) {
+                        enemiesInSection++;
+                    }
+                }
+            }
+        }
 
-     // Check if screen scrolling is allowed based on remaining enemies
-     bool canScroll = true;
-
-     // For level 3 and 4, check if enemies are still alive
-     if (level && (level->getLevelNumber() == 3 || level->getLevelNumber() == 4 || level->getLevelNumber() == 5)) {
-         // Get player's current x position to determine which section of the level they're in
-         int playerX = player->x();
-
-         // Check for enemies in the player's current view section
-         // We divide the level into sections (e.g., 0-800, 800-1600, etc.)
-         int sectionStart = (playerX / 800) * 800;
-         int sectionEnd = sectionStart + 800;
-
-         // Count enemies in this section
-         int enemiesInSection = 0;
-
-         // Count enemies in this section
-         for (QGraphicsItem* item : scene->items()) {
-             if (!item) continue;
-
-             // Check if item is within the current section
-             if (item->x() >= sectionStart && item->x() < sectionEnd) {
-                 if (level->getLevelNumber() == 3) {
-                     Penguin* penguin = dynamic_cast<Penguin*>(item);
-                     if (penguin && penguin->isAlive()) {
-                         enemiesInSection++;
-                     }
-                 } else if (level->getLevelNumber() == 4) {
-                     Alien* alien = dynamic_cast<Alien*>(item);
-                     if (alien && alien->isAlive()) {
-                         enemiesInSection++;
-                     }
-                 } else if (level->getLevelNumber() == 5) {
-                     CaveCreature* cavemons = dynamic_cast<CaveCreature*>(item);
-                     if (cavemons && cavemons->isAlive()) {
-                         enemiesInSection++;
-                     }
-                 }
-             }
-         }
-
-         // If there are still enemies in this section, don't allow scrolling
-         if (enemiesInSection > 0 && player->x() >= 600) {
-             canScroll = false;
-
-             // Show hint message if player tries to move right
-             if (player->isMovingRight()) {
-                 // Use a static counter to limit how often we show messages
-                 static int messageCounter = 0;
-                 if (messageCounter++ % 100 == 0) { // Show message every 100 frames
-                     if (level->getLevelNumber() == 3) {
-                         Message* hintmessage = Message::HintMessagelevel3();
-                         hintmessage->showMessage(scene, 300, 300);
-                     } else if (level->getLevelNumber() == 4) {
-                         Message* hintmessage = Message::HintMessagelevel4();
-                         hintmessage->showMessage(scene, 300, 300);
-                     } else if (level->getLevelNumber() == 5) {
-                         Message* hintmessage = Message::HintMessagelevel5();
-                         hintmessage->showMessage(scene, 300, 300);
-                     }
-                 }
-             }
-         } else if (player->x() >= 600) {
-             // All enemies defeated, allowing scroll
-             canScroll = true;
-         }
-     }
+        // If there are still enemies in this section, don't allow scrolling
+        if (enemiesInSection > 0 && player->x() >= 600) {
+            canScroll = false;
+            // Show hint message if player tries to move right
+            if (player->isMovingRight()) {
+                //limit how often we show messages using counter
+                static int messageCounter = 0;
+                if (messageCounter++ % 100 == 0) { // Show message every 100 frames
+                    if (level->getLevelNumber() == 3) {
+                        Message* hintmessage = Message::HintMessagelevel3();
+                        hintmessage->showMessage(scene, 300, 300);
+                    } else if (level->getLevelNumber() == 4) {
+                        Message* hintmessage = Message::HintMessagelevel4();
+                        hintmessage->showMessage(scene, 300, 300);
+                    } else if (level->getLevelNumber() == 5) {
+                        Message* hintmessage = Message::HintMessagelevel5();
+                        hintmessage->showMessage(scene, 300, 300);
+                    }
+                }
+            }
+        } else if (player->x() >= 600) {
+            // All enemies defeated, allowing scroll
+            canScroll = true;
+        }
+    }
 
     const int scrollSpeed = 3;
     if (player && player->x() >= 600 && player->isMovingRight() && canScroll) {
@@ -954,25 +928,25 @@ void MainWindow::updateGame()
         }
         updateHealthBar();
         for (QGraphicsItem* item : scene->items()) {
-            if (!item) continue;  // Safety check
+            if (!item) continue;
             if (item == player || item == bg1 || item == bg2 ||
                 item == healthOutline || item == healthBar) continue;
             item->moveBy(-scrollSpeed, 0);
-             // Check if this item is near the edge of the screen
+                // moving all items and making sure they are not on the edge of the screen
             if (item->x() + item->boundingRect().width() < 0) {
                 item->setX(scene->sceneRect().width());
             }
         }
     }
-    //check coin collisions (all levels)
+    //check coin collisions for all levels
     for (QGraphicsItem* item : scene->items()) {
         Coin* coin = dynamic_cast<Coin*>(item);
         if (coin) {
             coin->checkCollision(player);
         }
     }
-    // Check collectibles based on level
-    if (level) {  // Safety check
+    // Check rewards based on level
+    if (level) {
         int levelNum = level->getLevelNumber();
 
         if (levelNum == 1) {
@@ -1038,9 +1012,7 @@ void MainWindow::updateGame()
     healthBar->setPos(viewRight - 230, margin + 30);
     updateHealthBar();
     updateScore();
-    // Sync global coins with player coins
-    globalCoins = player->getCoins();
-    // Update coin count display
+    globalCoins = player->getCoins(); //coins are maintained through out the levels
     if (coinCountLabel) {
         coinCountLabel->setText(QString::number(globalCoins));
     }
@@ -1049,11 +1021,9 @@ void MainWindow::updateGame()
 
 void MainWindow::handlePlayerAttacks() {
     if (!player->isAttacking()) {
-        return; // Exit if player is not attacking
+        return;
     }
-
     for (QGraphicsItem* item : scene->items()) {
-        // Level 2 - Tiger
         if (level->getLevelNumber() == 2) {
             Tiger* tiger = dynamic_cast<Tiger*>(item);
             if (tiger && tiger->isAlive()) {
@@ -1065,9 +1035,7 @@ void MainWindow::handlePlayerAttacks() {
                 }
             }
         }
-        // Level 3 - Polar Bear and Penguin
         else if (level->getLevelNumber() == 3) {
-            // Check for polar bear
             PolarBear* bear = dynamic_cast<PolarBear*>(item);
             if (bear && bear->isAlive()) {
                 QPointF playerPos = player->pos();
@@ -1077,8 +1045,6 @@ void MainWindow::handlePlayerAttacks() {
                     bear->takeDamage(25);
                 }
             }
-
-            // Check for penguin
             Penguin* penguin = dynamic_cast<Penguin*>(item);
             if (penguin && penguin->isAlive()) {
                 QPointF playerPos = player->pos();
@@ -1095,7 +1061,6 @@ void MainWindow::handlePlayerAttacks() {
                 }
             }
         }
-        // Level 4 - Alien
         else if (level->getLevelNumber() == 4) {
             Alien* alien = dynamic_cast<Alien*>(item);
             if (alien && alien->isAlive()) {
@@ -1113,7 +1078,6 @@ void MainWindow::handlePlayerAttacks() {
                 }
             }
         }
-        //Level 5 - Troll
         else if (level->getLevelNumber() == 5) {
             Troll* troll = dynamic_cast<Troll*>(item);
             if (troll && troll->isAlive()) {
@@ -1124,9 +1088,6 @@ void MainWindow::handlePlayerAttacks() {
                     troll->takeDamage(40);
                 }
             }
-
-
-        // CaveCreature
             CaveCreature* creature = dynamic_cast<CaveCreature*>(item);
             if (creature && creature->isAlive()) {
                 QPointF playerPos = player->pos();
@@ -1143,8 +1104,6 @@ void MainWindow::handlePlayerAttacks() {
                 }
             }
         }
-
-        // Level 5 - Caveman
         Caveman* caveman = dynamic_cast<Caveman*>(item);
         if (caveman && caveman->isAlive()) {
             QPointF playerPos = player->pos();
@@ -1168,22 +1127,18 @@ void MainWindow::goToHome() {
     if (!levelFinished) {
         return;
     }
-
+    //hide all items
     QTimer::singleShot(3000, this, [=]() {
-
-        // Hide all game elements
         player->setVisible(false);
         for (QGraphicsItem* item : scene->items()) {
             if (item != healthOutline && item != healthBar && item != bg1 && item != bg2 && item != player) {
                 item->setVisible(false);
             }
         }
-
         // Hide UI elements
         levelText->hide();
         scoreText->hide();
         waterIcon->hide();
-
         // Emit the signal to go back to Home
         emit backToHome();
     });
@@ -1196,7 +1151,7 @@ void MainWindow::goToHome() {
 
 void MainWindow::resetGameState() {
     levelFinished = false;
-    player->resetDroplets(); // Reset all types
+    player->resetDroplets(); // Reset all types of collectables
     player->resetApples();
     player->resetSnowflakes();
     player -> resetStars();
@@ -1221,15 +1176,8 @@ void MainWindow::nextLevel() {
 
 
 void MainWindow::switchToNextLevel() {
-    // Don't create and close a new Home window
-    // Just switch to Level 2 directly
-
     int currentLevel = level->getLevelNumber();  // Get the current level
-
-    // Save coin count before destroying level/player
     globalCoins = player->getCoins();
-    qDebug() << "Saved coins before level switch:" << globalCoins;
-
     if (level) {
         delete level;
         level = nullptr;
@@ -1237,52 +1185,41 @@ void MainWindow::switchToNextLevel() {
 
     if (currentLevel == 1) {
         setupLevel2();
-        // Manually set player coins again after setup
         player->setCoins(globalCoins);
-        qDebug() << "After setup level 2, player coins:" << player->getCoins();
         Message* level2StartMessage = Message::createLevelTwoStartMessage();
         level2StartMessage->showMessage(scene, 300, 300);
     }
     else if (currentLevel == 2) {
         setupLevel3();
-        // Manually set player coins again after setup
         player->setCoins(globalCoins);
-        qDebug() << "After setup level 2, player coins:" << player->getCoins();
-
         Message* level3StartMessage = Message::createLevelThreeStartMessage();
         level3StartMessage->showMessage(scene, 300, 300);
     }
     else if (currentLevel == 3) {
         setupLevel4();
-        // Manually set player coins again after setup
         player->setCoins(globalCoins);
-        qDebug() << "After setup level 2, player coins:" << player->getCoins();
-
         Message* level4StartMessage = Message::createLevelFourStartMessage();
         level4StartMessage->showMessage(scene, 300, 300);
     }
     else if (currentLevel == 4) {
         setupLevel5();
-        // Manually set player coins again after setup
         player->setCoins(globalCoins);
-        qDebug() << "After setup level 2, player coins:" << player->getCoins();
-
         Message* level5StartMessage = Message::createLevelFiveStartMessage();
         level5StartMessage->showMessage(scene, 300, 300);
     }
 }
 
 void MainWindow::handleLevelTwoComplete() {
-    // After a delay, switch to Level 3
+    // switch to Level 3 after a small time delay
     QTimer::singleShot(4000, this, [this]() {
-        switchToNextLevel();  // Move to Level 3
+        switchToNextLevel();
     });
 }
 
 void MainWindow::handleLevelThreeComplete() {
-    // After a delay, switch to Level 4
+    // switch to Level 4 after a small time delay
     QTimer::singleShot(4000, this, [this]() {
-        switchToNextLevel();  // Move to Level 4
+        switchToNextLevel();
     });
 }
 void MainWindow::updateLevelTimer(int seconds) {
@@ -1294,19 +1231,13 @@ void MainWindow::updateLevelTimer(int seconds) {
                                      .arg(secs, 2, 10, QChar('0')));
     }
 }
-// Add this function to your MainWindow.cpp file
 void MainWindow::openStore() {
-    // Make sure we have a valid store and player
     if (!store || !player) {
         return;
     }
-
-    // Update the store display with current coin count
     store->updateDisplay();
-
     // Show the store as a modal dialog
     store->exec();
-
     // When the store closes, ensure player has focus for controls
     if (player) {
         player->setFocus();
@@ -1318,11 +1249,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     if (player) {
         player->keyPressEvent(event);
     }
-
     // Handle global keyboard shortcuts
     switch (event->key()) {
     case Qt::Key_R:
-        // Restart the current level
         if (level) {
             level->resetLevel();
             resetGameState();
@@ -1330,17 +1259,13 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_E:
-        // Exit to home screen
-        gamePaused = false; // Make sure game is not paused when returning to home
-
-        // Use a single-shot timer to ensure clean return to home
+        gamePaused = false;
         QTimer::singleShot(100, this, [this]() {
             emit backToHome();
         });
         break;
 
     case Qt::Key_P:
-        // Toggle pause state
         if (gamePaused) {
             resumeGame();
         } else {
@@ -1349,7 +1274,6 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         break;
 
     default:
-        // Let the base class handle other keys
         QMainWindow::keyPressEvent(event);
         break;
     }
@@ -1357,16 +1281,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 
 void MainWindow::keyReleaseEvent(QKeyEvent* event)
 {
-    // Pass keyboard events to the player for movement control
     if (player) {
         player->keyReleaseEvent(event);
     }
-
-    // Let the base class handle other keys
     QMainWindow::keyReleaseEvent(event);
 }
 
-// Update the pauseGame method:
 void MainWindow::pauseGame()
 {
     if (gamePaused) return; // Already paused
@@ -1395,17 +1315,16 @@ void MainWindow::pauseGame()
     pauseText->setPos((800 - textRect.width()) / 2,
                       (600 - textRect.height()) / 2);
 
-    // Make text stand out by adding a semi-transparent background
+    // dding a transparent background
     QGraphicsRectItem* background = new QGraphicsRectItem(pauseText->boundingRect());
     background->setBrush(QBrush(QColor(0, 0, 0, 150)));
     background->setPos(pauseText->pos());
-    background->setData(0, "pauseBackground"); // Tag for identification
-    background->setZValue(999); // Just below text
+    background->setData(0, "pauseBackground");
+    background->setZValue(999); //  below text
     scene->addItem(background);
     pauseText->setZValue(1000); // Ensure text is on top
 }
 
-// Update the resumeGame method:
 void MainWindow::resumeGame()
 {
     if (!gamePaused) return; // Not paused
@@ -1421,8 +1340,6 @@ void MainWindow::resumeGame()
         scene->removeItem(pauseText);
         delete pauseText;
         pauseText = nullptr;
-
-        // Find and remove the background by its data tag
         for (QGraphicsItem* item : scene->items()) {
             if (item && item->data(0).toString() == "pauseBackground") {
                 scene->removeItem(item);
@@ -1431,13 +1348,12 @@ void MainWindow::resumeGame()
             }
         }
     }
-
-    // Instead of creating a new timer, restart existing timers
+    //restarting existing timers
     QTimer* gameTimer = findChild<QTimer*>("gameTimer");
     if (!gameTimer) {
-        // Create a new timer only if one doesn't exist
+        // creates a new timer only if one doesn't exist
         gameTimer = new QTimer(this);
-        gameTimer->setObjectName("gameTimer"); // Give it a name for future reference
+        gameTimer->setObjectName("gameTimer");
         connect(gameTimer, &QTimer::timeout, this, &MainWindow::updateGame);
     }
     gameTimer->start(16);

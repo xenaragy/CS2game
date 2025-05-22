@@ -13,7 +13,7 @@ Level3::Level3(QGraphicsScene* scene, Player* p1)
     : Level(3, scene, p1) {}
 
 void Level3::setupLevel() {
-//cleaning up the level
+    //cleaning up the level
     for (auto* item : scene->items()) {
         if (dynamic_cast<Apple*>(item) || dynamic_cast<WaterDroplet*>(item)) {
             scene->removeItem(item);
@@ -25,14 +25,14 @@ void Level3::setupLevel() {
         delete item;
     }
     obstacles.clear();
-//adding coind
+    //adding coind
     for (int i = 0; i < 15; ++i) {
         int x = 200 + i * 150;
         int y = 80 + (i % 5) * 60;
         Coin* coin = new Coin(x, y);
         scene->addItem(coin);
     }
-//adding flakes
+    //adding flakes
     for (int i = 0; i < 30; ++i) {
         int x = 150 + i * 100;
         int y = 100 + (i % 3) * 80;
@@ -95,10 +95,10 @@ void Level3::resetLevel() {
         Coin* coin = dynamic_cast<Coin*>(item);
         SnowBall* snowball = dynamic_cast<SnowBall*>(item);
 
-            if (polarbear || penguin || snowflake || snowman ||snowball || coin) {
-                scene->removeItem(item);
-                delete item;
-            }
+        if (polarbear || penguin || snowflake || snowman ||snowball || coin) {
+            scene->removeItem(item);
+            delete item;
+        }
     }
     setupLevel();
 }
@@ -116,4 +116,3 @@ void Level3::addEnemies() {
     PolarBear* bear = new PolarBear(700, 500 - 140);
     scene->addItem(bear);
 }
-

@@ -12,35 +12,34 @@
 Level4::Level4(QGraphicsScene* scene, Player* p1)
     : Level(4, scene, p1),
     asteroidAttackActive(false),
-    remainingTime(90),  // 1 minute 30 seconds
-    timerPaused(false)
+    remainingTime(90),
+    timerPaused(false),
+    asteroidTimer(nullptr),
+    levelTimer(nullptr),
+    spaceshipTimer(nullptr),
+    timerDisplay(nullptr)
 {
-    // Initialize asteroid timer
+    // Initialize timers
     asteroidTimer = new QTimer(this);
     connect(asteroidTimer, &QTimer::timeout, this, &Level4::spawnAsteroid);
 
-    // Initialize level timer (updates every second)
     levelTimer = new QTimer(this);
     connect(levelTimer, &QTimer::timeout, this, &Level4::updateTimerDisplay);
 
-    // Initialize spaceship timer but don't start it yet
     spaceshipTimer = new QTimer(this);
     connect(spaceshipTimer, &QTimer::timeout, this, &Level4::spawnSpaceship);
 }
 
-Level4::~Level4()
-{
-    if (asteroidTimer) {
-        asteroidTimer->stop();
-        delete asteroidTimer;
-    }
-    if (levelTimer) {
-        levelTimer->stop();
-        delete levelTimer;
-    }
-    if (spaceshipTimer) {
-        spaceshipTimer->stop();
-        delete spaceshipTimer;
+Level4::~Level4() {
+    stopAllTimers();
+
+    // Clean up timer display
+    if (timerDisplay) {
+        if (scene && scene->items().contains(timerDisplay)) {
+            scene->removeItem(timerDisplay);
+        }
+        delete timerDisplay;
+        timerDisplay = nullptr;
     }
 }
 
@@ -75,20 +74,26 @@ void Level4::setupLevel() {
     font.setPointSize(16);
     font.setBold(true);
     timerDisplay->setFont(font);
-    timerDisplay->setPos(650, 20);  // Top right corner
+    timerDisplay->setPos(650, 20);
     scene->addItem(timerDisplay);
 
-    // Initial timer display
+    // Reset counters FIRST
+    remainingTime = 90;
+
+    // Update timer display
     updateTimerDisplay();
 
-    // Start level timer
-    levelTimer->start(1000);  // Update every second
+    // Start level timer if it exists and isn't running
+    if (levelTimer && !levelTimer->isActive()) {
+        levelTimer->start(1000);  // Update every second
+    }
 
-    // Schedule spaceship appearances
-    QTimer::singleShot(5000, this, &Level4::spawnSpaceship);
+    QTimer::singleShot(5000, this, [this]() {
+        if (scene) {  // Only check scene validity
+            spawnSpaceship();
+        }
+    });
 
-    // Reset counters
-    remainingTime = 90;
     // Add stars
     for (int i = 0; i < 30; ++i) {
         int x = 150 + i * 100;
@@ -103,9 +108,7 @@ void Level4::setupLevel() {
     const int platformHeight = 190; // Larger height as you specified
     const int platformSpacingY = 80;
 
-
     QVector<QPair<QPoint, QString>> platformLayout = {
-
         // Row 1 (slightly above ground)
         { QPoint(200, groundY - 3 * platformSpacingY), ":/backgrounds/spaceplatform2.png" },
         { QPoint(500, groundY - 3 * platformSpacingY), ":/backgrounds/spaceplatform1.png" },
@@ -128,7 +131,7 @@ void Level4::setupLevel() {
         { QPoint(650, groundY - 6.5 * platformSpacingY), ":/backgrounds/spaceplatform1.png" },
         { QPoint(900, groundY - 6.5 * platformSpacingY), ":/backgrounds/spaceplatform2.png" },
 
-        // Additional platforms at various heights to match the screenshot
+        // Additional platforms at various heights
         { QPoint(250, groundY - 4.2 * platformSpacingY), ":/backgrounds/spaceplatform1.png" },
         { QPoint(600, groundY - 4.2 * platformSpacingY), ":/backgrounds/spaceplatform2.png" },
         { QPoint(150, groundY - 6 * platformSpacingY), ":/backgrounds/spaceplatform1.png" },
@@ -160,27 +163,23 @@ void Level4::setupLevel() {
 
     // Initialize asteroid attack variables
     asteroidAttackActive = false;
-    asteroidTimer = new QTimer(this);
-    connect(asteroidTimer, &QTimer::timeout, this, &Level4::spawnAsteroid);
+
+    // DON'T recreate asteroidTimer if it already exists!
+    // It should be created in the constructor or resetLevel()
+    if (!asteroidTimer) {
+        asteroidTimer = new QTimer(this);
+        connect(asteroidTimer, &QTimer::timeout, this, &Level4::spawnAsteroid);
+    }
 }
 
 void Level4::resetLevel() {
-    // Static flag to prevent re-entry
-    static bool resetting = false;
-
-    if (resetting) {
-        return;
-    }
-
-    resetting = true;
-
     // Stop all timers first
     stopAllTimers();
 
     // Reset player
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
-    p1->resetStars(); // Reset collected stars
+    p1->resetStars();
 
     // Make sure player is not frozen
     if (p1->isFrozenBySpaceship()) {
@@ -189,7 +188,7 @@ void Level4::resetLevel() {
     p1->setFlag(QGraphicsItem::ItemIsFocusable, true);
     p1->setFocus();
 
-    // Remove all obstacles and items safely
+    // Clean up scene items
     QList<QGraphicsItem*> itemsToRemove = obstacles;
     obstacles.clear();
 
@@ -199,7 +198,6 @@ void Level4::resetLevel() {
             delete item;
         }
     }
-    obstacles.clear();
 
     // Remove timer display if it exists
     if (timerDisplay) {
@@ -208,34 +206,29 @@ void Level4::resetLevel() {
         timerDisplay = nullptr;
     }
 
-    // Safely remove any remaining asteroids and spaceships
-    QList<QGraphicsItem*> allItems = scene->items();
-    for (auto* item : allItems) {
-        Asteroid* asteroid = dynamic_cast<Asteroid*>(item);
-        Spaceship* spaceship = dynamic_cast<Spaceship*>(item);
-        Star* star = dynamic_cast<Star*>(item);
-        Alien* alien = dynamic_cast<Alien*>(item);
-        Coin* coin = dynamic_cast<Coin*>(item);
-        if (asteroid || spaceship || star || alien || coin) {
-            scene->removeItem(item);
-            delete item;
-        }
-    }
-
-    // Reset state variables
+    // CRITICAL: Reset timer state variables BEFORE setupLevel
     asteroidAttackActive = false;
-    remainingTime = 90; // Reset to 1 minute 30 seconds
+    remainingTime = 90;  // Reset to full time
+    timerPaused = false; // Make sure not paused
 
-    // Now set up the level again
-    setupLevel();
-
-    // Start the timer after setup is complete
-    if (levelTimer) {
-        levelTimer->start(1000);
+    // Recreate timers (they were stopped/disconnected in stopAllTimers)
+    if (!asteroidTimer) {
+        asteroidTimer = new QTimer(this);
+        connect(asteroidTimer, &QTimer::timeout, this, &Level4::spawnAsteroid);
     }
 
-    // Clear the flag
-    resetting = false;
+    if (!levelTimer) {
+        levelTimer = new QTimer(this);
+        connect(levelTimer, &QTimer::timeout, this, &Level4::updateTimerDisplay);
+    }
+
+    if (!spaceshipTimer) {
+        spaceshipTimer = new QTimer(this);
+        connect(spaceshipTimer, &QTimer::timeout, this, &Level4::spawnSpaceship);
+    }
+
+    // Now call setupLevel (which will start the level timer)
+    setupLevel();
 }
 
 void Level4::addEnemies() {
@@ -286,6 +279,9 @@ void Level4::checkAsteroidAttack()
 }
 
 void Level4::spawnSpaceship() {
+    if (!scene || !p1) {
+        return; // Safety check
+    }
     // Create spaceship at random position above the screen
     int startX = QRandomGenerator::global()->bounded(scene->width() - 100);
     int startY = 0;
@@ -303,26 +299,34 @@ void Level4::spawnSpaceship() {
 }
 
 void Level4::updateTimerDisplay() {
-    // Always decrement time, even if player is frozen
+    // Don't decrement if game is paused or timer is paused
+    if (timerPaused) {
+        return;
+    }
+
+    // Decrement time
     remainingTime--;
 
     // Update the timer display in MainWindow
-    if (MainWindow* mainWindow = dynamic_cast<MainWindow*>(scene->parent())) {
+    if (MainWindow* mainWindow = qobject_cast<MainWindow*>(parent())) {
         mainWindow->updateLevelTimer(remainingTime);
     }
 
     // Check if time is up
     if (remainingTime <= 0) {
-        levelTimer->stop();
+        if (levelTimer) {
+            levelTimer->stop();
+        }
 
         // Create game over message
         Message* timeUpMessage = new Message("Time's Up! Game Over", 3000);
         timeUpMessage->showMessage(scene, 300, 300);
 
         // Reset level after 2 seconds
-        QTimer::singleShot(2000, [this]() {
+        QTimer::singleShot(2000, this, [this]() {
             resetLevel();
         });
+        return;
     }
 
     // Ensure player has focus if not frozen
@@ -330,4 +334,42 @@ void Level4::updateTimerDisplay() {
         p1->setFlag(QGraphicsItem::ItemIsFocusable, true);
         p1->setFocus();
     }
+}
+
+void Level4::stopAllTimers() {
+    qDebug() << "Stopping all Level4 timers";
+
+    // Stop and delete main timers
+    if (asteroidTimer) {
+        asteroidTimer->stop();
+        asteroidTimer->disconnect();
+        asteroidTimer->deleteLater();
+        asteroidTimer = nullptr;
+    }
+
+    if (levelTimer) {
+        levelTimer->stop();
+        levelTimer->disconnect();
+        levelTimer->deleteLater();
+        levelTimer = nullptr;
+    }
+
+    if (spaceshipTimer) {
+        spaceshipTimer->stop();
+        spaceshipTimer->disconnect();
+        spaceshipTimer->deleteLater();
+        spaceshipTimer = nullptr;
+    }
+
+    // Stop all child timers (including QSingleShotTimer)
+    QList<QTimer*> allTimers = findChildren<QTimer*>();
+    for (QTimer* timer : allTimers) {
+        if (timer) {
+            timer->stop();
+            timer->disconnect();
+            timer->deleteLater();
+        }
+    }
+
+    qDebug() << "All Level4 timers stopped and deleted";
 }

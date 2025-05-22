@@ -31,11 +31,8 @@ public:
     void checkBatAttack();
     void startBatAttack();
     void spawnBat();
- //   void startBattle();
-  //  void endBattle();
     void startTrollBattle();
- //   bool isCinematicPlaying() const { return cinematicPlaying; }
-      void killTroll();
+    void killTroll();
 
 private slots:
     //void autoFight(); // Connected to fight timer

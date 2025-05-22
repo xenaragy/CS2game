@@ -8,7 +8,7 @@
 #include "rewards.h"
 
 class Level : public QObject{
-        Q_OBJECT
+    Q_OBJECT
 protected:
     QGraphicsScene* scene;
     QVector<QGraphicsItem*> obstacles;

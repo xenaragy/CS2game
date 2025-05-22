@@ -5,25 +5,33 @@
 #include "rewards.h"
 #include "message.h"
 #include "enemies.h"
+#include <QTimer>
+#include <QGraphicsTextItem>
 
 class Level4 : public Level {
+    Q_OBJECT
+
 public:
     Level4(QGraphicsScene* scene, Player* p1);
     ~Level4();
+
     void setupLevel() override;
-    void addEnemies();
     void resetLevel() override;
+    void addEnemies();
+
+    // Asteroid related methods
     void startAsteroidAttack();
     void spawnAsteroid();
-    QTimer* asteroidTimer;
-    bool asteroidAttackActive;
     void checkAsteroidAttack();
+
+    // Timer control methods
     void stopLevelTimer() {
         if (levelTimer && levelTimer->isActive()) {
             levelTimer->stop();
         }
         remainingTime = 90; // Reset to initial time
     }
+
     void pauseTimer() {
         if (levelTimer && levelTimer->isActive()) {
             levelTimer->stop();
@@ -37,39 +45,24 @@ public:
             timerPaused = false;
         }
     }
-    void stopAllTimers() {
-        // Stop level timer
-        if (levelTimer && levelTimer->isActive()) {
-            levelTimer->stop();
-        }
 
-        // Stop asteroid timer
-        if (asteroidTimer && asteroidTimer->isActive()) {
-            asteroidTimer->stop();
-        }
-
-        // Stop spaceship timer
-        if (spaceshipTimer && spaceshipTimer->isActive()) {
-            spaceshipTimer->stop();
-        }
-
-        // Stop any other potential timers used in level 4
-
-        // Set remaining time to ensure proper reset
-        remainingTime = 90;
-    }
+    void stopAllTimers();
 
 private:
-    // Timer related variables
+    // Timer related variables (declared once only)
+    QTimer* asteroidTimer;
     QTimer* levelTimer;
-    int remainingTime;  // in seconds
-    QGraphicsTextItem* timerDisplay;
-    // Spaceship related variables
     QTimer* spaceshipTimer;
-    void spawnSpaceship();
+    QGraphicsTextItem* timerDisplay;
+
+    // State variables
+    bool asteroidAttackActive;
+    int remainingTime;  // in seconds
     bool timerPaused;
 
-    // Update function
+    // Private methods
+    void spawnSpaceship();
     void updateTimerDisplay();
 };
+
 #endif // LEVEL4_H

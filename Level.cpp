@@ -98,6 +98,11 @@ void Level::resetLevel() {
     p1->setHealth(100);
     p1->setPosition(50, 550 - 100);
     p1->setDropletsCollected(0);
+    for (auto* item : obstacles) {
+        scene->removeItem(item);
+        delete item;
+    }
+    obstacles.clear();
     for (auto* item : scene->items()) {
         Fire* fire = dynamic_cast<Fire*>(item);
         Cactus* cactus = dynamic_cast<Cactus*>(item);
@@ -125,5 +130,3 @@ int Level::getLevelNumber() const
 {
     return levelNumber;
 }
-
-

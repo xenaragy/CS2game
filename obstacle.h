@@ -10,7 +10,6 @@
 #include <QTimer>
 
 
-
 class Obstacle : public QGraphicsPixmapItem {
 
 public:

@@ -29,17 +29,17 @@ public:
 
 private slots:
     void patrol();
-    void respawn();  // Add respawn slot
+    void respawn();
 
 private:
     int startX;
-    int startY;     // Add Y position for respawn
+    int startY;
     int direction;
     int range;
     int health;
     QTimer* movementTimer;
     QTimer* damageTimer;
-    QTimer* respawnTimer;  // Add respawn timer
+    QTimer* respawnTimer;
 };
 
 class Penguin : public Enemies {
@@ -117,21 +117,23 @@ class Caveman : public Enemies {
     Q_OBJECT
 public:
     Caveman(int x, int y, QObject* parent = nullptr);
-    ~Caveman() override;
+    ~Caveman();
 
-    bool takeDamage(int damage) ;
-    bool canTakeDamage() ;
-    bool isAlive() const ;
+public:
+    bool takeDamage(int damage);
+    bool canTakeDamage();
+    bool isAlive() const;
+
+private slots:
     void patrol();
-    void setx(int x){startX = x;}
-    void setrange(int r){range = r;}
-    int     health;
+
 private:
+    int health;
     QTimer* movementTimer;
     QTimer* damageTimer;
-    int     startX;
-    int     direction;
-    int     range;
+    int startX;
+    int direction;
+    int range;
 };
 
 class Troll : public Enemies {
@@ -156,4 +158,4 @@ private:
     int     range;
 };
 
-#endif // ENEMIES_H  // Make sure this line exists!
+#endif // ENEMIES_H

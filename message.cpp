@@ -14,23 +14,13 @@ void Message::showMessage(QGraphicsScene* scene, int x, int y) {
     if (!scene) {
         return;
     }
-
     scene->addItem(this);
     setPos(x, y);
-
-    // Instead of using a single-shot timer with a lambda that captures 'this',
-    // use a regular timer and connect its signal to a safe slot
-    QTimer* timer = new QTimer(this); // Parent to this so it gets deleted with the Message
-    timer->setSingleShot(true);
-    timer->setInterval(displayDuration);
-
-    // Connect using safer signal-slot connection
-    connect(timer, &QTimer::timeout, this, &Message::onTimeout);
-
-    // Store the scene pointer for later use in onTimeout
+    QTimer* timer = new QTimer(this);
+    timer->setSingleShot(true); //how long a message should stay on the screen
+    timer->setInterval(displayDuration);//sets interval to the set duration
+    connect(timer, &QTimer::timeout, this, &Message::onTimeout); //when the duration passes, time out is called and the msg dissapears
     this->scene = scene;
-
-    // Start the timer
     timer->start();
 }
 
@@ -54,7 +44,6 @@ Message* Message::createGameOverMessage() {
 }
 
 
-// New methods for Level 1 specific messages
 Message* Message::createLevelOneStartMessage() {
     return new Message("Collect all droplets", 3000);
 }
@@ -96,10 +85,8 @@ Message* Message::createLevelFiveCompleteMessage() {
 
 Message* Message::killedPinguinBonus() {
     Message* msg = new Message("Health Bonus! Pinguin killed successfuly", 3000);
-
-    // Change font size internally
     QFont font = msg->font();
-    font.setPointSize(20);  // set your smaller font size here
+    font.setPointSize(20);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::green);
     return msg;
@@ -107,19 +94,16 @@ Message* Message::killedPinguinBonus() {
 
 Message* Message::killedAlienBonus() {
     Message* msg = new Message("Health Bonus! Alien killed successfuly", 3000);
-
-    // Change font size internally
     QFont font = msg->font();
-    font.setPointSize(20);  // set your smaller font size here
+    font.setPointSize(20);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::green);
-
     return msg;
 }
 Message* Message::HintMessagelevel3() {
     Message* msg = new Message("Kill all penguins to proceed", 3000);
     QFont font = msg->font();
-    font.setPointSize(30);  // set your smaller font size here
+    font.setPointSize(30);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::red);
     return msg;
@@ -127,7 +111,7 @@ Message* Message::HintMessagelevel3() {
 Message* Message::HintMessagelevel4(){
     Message* msg = new Message("Kill all aliens to proceed", 3000);
     QFont font = msg->font();
-    font.setPointSize(30);  // set your smaller font size here
+    font.setPointSize(30);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::red);
     return msg;
@@ -135,37 +119,31 @@ Message* Message::HintMessagelevel4(){
 Message* Message::HintMessagelevel5(){
     Message* msg = new Message("Kill all monsters to proceed", 3000);
     QFont font = msg->font();
-    font.setPointSize(30);  // set your smaller font size here
+    font.setPointSize(30);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::red);
     return msg;
 }
 Message* Message::killedCaveCreatureBonus() {
     Message* msg = new Message("Health Bonus! Cave creature killed successfuly", 3000);
-
-    // Change font size internally
     QFont font = msg->font();
-    font.setPointSize(20);  // set your smaller font size here
+    font.setPointSize(20);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::green);
     return msg;
 }
 Message* Message::killedTrollBonus(){
     Message* msg = new Message("Health Bonus! Troll killed successfuly", 3000);
-
-    // Change font size internally
     QFont font = msg->font();
-    font.setPointSize(20);  // set your smaller font size here
+    font.setPointSize(20);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::green);
     return msg;
 }
 Message* Message::KilledCaveManBonus(){
     Message* msg = new Message("Health Bonus! Cave man killed successfuly", 3000);
-
-    // Change font size internally
     QFont font = msg->font();
-    font.setPointSize(20);  // set your smaller font size here
+    font.setPointSize(20);
     msg->setFont(font);
     msg->setDefaultTextColor(Qt::green);
     return msg;
