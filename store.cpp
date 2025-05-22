@@ -191,20 +191,16 @@ Store::Store(Player* player, QWidget* parent)
 bool Store::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
-        qDebug() << "Mouse press on:" << obj->objectName();
 
         if (obj->objectName() == "speedArea") {
-            qDebug() << "Speed area clicked!";
             purchaseSpeedBoost();
             return true;
         }
         else if (obj->objectName() == "shieldArea") {
-            qDebug() << "Shield area clicked!";
             purchaseShield();
             return true;
         }
         else if (obj->objectName() == "attackArea") {
-            qDebug() << "Attack area clicked!";
             purchaseSuperAttack();
             return true;
         }
@@ -248,7 +244,6 @@ void Store::updateButtonStates() {
 void Store::purchaseSpeedBoost() {
     // Safety check
     if (!player) {
-        qDebug() << "Warning: purchaseSpeedBoost called with null player!";
         return;
     }
     if (!speedBoostButton) return;
@@ -275,7 +270,6 @@ void Store::purchaseSpeedBoost() {
 void Store::purchaseShield() {
     // Safety check
     if (!player) {
-        qDebug() << "Warning: purchaseSpeedBoost called with null player!";
         return;
     }
     if (!shieldButton) return;
@@ -302,7 +296,6 @@ void Store::purchaseShield() {
 void Store::purchaseSuperAttack() {
     // Safety check
     if (!player) {
-        qDebug() << "Warning: purchaseSpeedBoost called with null player!";
         return;
     }
     if (!superAttackButton) return;

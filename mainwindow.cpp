@@ -12,6 +12,7 @@
 #include "ui_mainwindow.h"
 #include <QTimer>
 #include <QFont>
+#include <QDebug>
 #include <QPixmap>
 #include <QPushButton>
 #include <QGraphicsRectItem>
@@ -47,7 +48,6 @@ MainWindow::MainWindow(QWidget *parent)
 int MainWindow::globalCoins = 0;
 MainWindow::~MainWindow()
 {
-    qDebug() << "MainWindow destructor called";
     // Stop all timers first to prevent callbacks during destruction
     QList<QTimer*> allTimers = findChildren<QTimer*>();
     for (QTimer* timer : allTimers) {

@@ -3,7 +3,6 @@
 #include <QGraphicsScene>
 #include <QTimer>
 #include <QGraphicsRectItem>
-#include <QDebug>
 #include <QPainter>
 
 Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
@@ -38,19 +37,6 @@ Player::Player() : health(100), coins(0), isJumping(false), isCrouching(false),
     speedJumpImage = speedJumpPixmap.scaled(85, 105, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     shieldImage = shieldPixmap.scaled(exactWidth, exactHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     shieldLeftImage = shieldLeftPixmap.scaled(exactWidth, exactHeight, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
-    // Print debug info to verify all images are exactly the same size
-    qDebug() << "ALL IMAGE SIZES:";
-    qDebug() << "  Standing:" << standingImage.size();
-    qDebug() << "  Running right:" << runningRightImage.size();
-    qDebug() << "  Running left:" << runningLeftImage.size();
-    qDebug() << "  Crouch:" << crouchImage.size();
-    qDebug() << "  Attack:" << attackImage.size();
-    qDebug() << "  Speed right:" << speedRightImage.size();
-    qDebug() << "  Speed left:" << speedLeftImage.size();
-    qDebug() << "  Speed jump:" << speedJumpImage.size();
-    qDebug() << "  Shield:" << shieldImage.size();
-    qDebug() << "  Shield left:" << shieldLeftImage.size();
 
     // Set initial appearance
     setPixmap(standingImage);
@@ -459,19 +445,12 @@ void Player::resetPlayer() {
 }
 
 void Player::freezeBySpaceship() {
-    qDebug() << "PLAYER FROZEN by spaceship";
-    // Store original state
     wasFocusable = flags() & QGraphicsItem::ItemIsFocusable;
-
-    // Disable movement
     setFlag(QGraphicsItem::ItemIsFocusable, false);
     frozenBySpaceship = true;
 }
 
 void Player::unfreezeFromSpaceship() {
-    qDebug() << "PLAYER UNFROZEN from spaceship";
-
-    // Only try to set flags if we're in a scene
     if (scene()) {
         // Restore to original state
         if (wasFocusable) {
