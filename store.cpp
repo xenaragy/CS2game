@@ -13,24 +13,20 @@
 Store::Store(Player* player, QWidget* parent)
     : QDialog(parent), player(player)
 {
-    // Initialize all button pointers to nullptr first
     speedBoostButton = nullptr;
     shieldButton = nullptr;
     superAttackButton = nullptr;
     coinCountLabel = nullptr;
     coinsLabel = nullptr;
 
-    // Set up the dialog
     setWindowTitle("Adventure Shop");
     setFixedSize(800, 600);
-    setModal(true); // Modal dialog blocks interaction with main window
+    setModal(true);
 
-    // Creating a layout to help with button placement
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0); // No margins
     setLayout(mainLayout);
 
-    // Add a transparent panel widget as a container for buttons
     QWidget* buttonPanel = new QWidget(this);
     buttonPanel->setGeometry(0, 0, 800, 600);
     buttonPanel->setAttribute(Qt::WA_TransparentForMouseEvents, false);
@@ -54,11 +50,8 @@ Store::Store(Player* player, QWidget* parent)
         backgroundLabel->setPixmap(scaledBackground);
         backgroundLabel->setGeometry(0, 0, 800, 600);
         backgroundLabel->lower();
-    } else {
-        qDebug() << "Warning: Could not load shop background image";
     }
 
-    // Coin display - top right corner (on the button panel to ensure visibility)
     QLabel* coinIcon = new QLabel(buttonPanel);
     QPixmap coinPixmap(":/Rewards/coin.png");
     if (!coinPixmap.isNull()) {
@@ -75,17 +68,14 @@ Store::Store(Player* player, QWidget* parent)
     coinsLabel->setStyleSheet("font-size: 28px; font-weight: bold; color: white;");
     coinsLabel->setGeometry(760, 50, 60, 40);
 
-    // Button sizes
     int buttonWidth = 170;
     int buttonHeight = 55;
 
-    // Button positions
     int leftButtonX = 75;
     int middleButtonX = 315;
     int rightButtonX = 565;
     int buttonY = 400;
 
-    // Create the buttons with green styling on the button panel
     speedBoostButton = new QPushButton("5 COINS", buttonPanel);
     if (speedBoostButton) {
         speedBoostButton->setGeometry(leftButtonX, buttonY, buttonWidth, buttonHeight);
@@ -97,10 +87,7 @@ Store::Store(Player* player, QWidget* parent)
         speedBoostButton->setCursor(Qt::PointingHandCursor);
         speedBoostButton->show();
         connect(speedBoostButton, &QPushButton::clicked, this, &Store::purchaseSpeedBoost);
-
-        // Debug message to check if button gets clicked
         connect(speedBoostButton, &QPushButton::clicked, [this]() {
-            qDebug() << "Speed button clicked!";
         });
     }
 
@@ -115,10 +102,7 @@ Store::Store(Player* player, QWidget* parent)
         shieldButton->setCursor(Qt::PointingHandCursor);
         shieldButton->show();
         connect(shieldButton, &QPushButton::clicked, this, &Store::purchaseShield);
-
-        // Debug message to check if button gets clicked
         connect(shieldButton, &QPushButton::clicked, [this]() {
-            qDebug() << "Shield button clicked!";
         });
     }
 
@@ -140,8 +124,6 @@ Store::Store(Player* player, QWidget* parent)
         });
     }
 
-    // APPROACH #2: Also create backup alternative buttons as QWidgets with click handlers
-    // These will serve as fallback clickable areas
     QWidget* speedArea = new QWidget(buttonPanel);
     speedArea->setGeometry(leftButtonX, buttonY, buttonWidth, buttonHeight);
     speedArea->setCursor(Qt::PointingHandCursor);
@@ -202,11 +184,9 @@ Store::Store(Player* player, QWidget* parent)
         setTabOrder(superAttackButton, closeButton);
     }
 
-    // Force update the layout
-    QApplication::processEvents();
-
-    // Call updateButtonStates AFTER all UI elements are created
-    updateButtonStates();
+    QTimer::singleShot(0, this, [this]() {
+        updateButtonStates();
+    });
 }
 bool Store::eventFilter(QObject *obj, QEvent *event)
 {
@@ -236,7 +216,6 @@ bool Store::eventFilter(QObject *obj, QEvent *event)
 void Store::updateDisplay() {
     // Safety check
     if (!player || !coinsLabel) {
-        qDebug() << "Warning: updateDisplay called with null player or coinsLabel!";
         return;
     }
 

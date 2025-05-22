@@ -473,12 +473,6 @@ void MainWindow::setupLevel4() {
     view->setFocusPolicy(Qt::NoFocus);
     setCentralWidget(view);
 
-    levelTimerLabel = new QLabel("Time: 01:30", this);
-    levelTimerLabel->setStyleSheet("color: white; font-weight: bold; font-size: 16px;");
-    levelTimerLabel->move(650, 10);
-    levelTimerLabel->resize(150, 30);
-    levelTimerLabel->show();
-
     QPixmap bgPixmap(":/backgrounds/spacebackground.jpg");
     bgPixmap = bgPixmap.scaled(800, 600);
     bg1 = scene->addPixmap(bgPixmap);
@@ -992,7 +986,8 @@ void MainWindow::updateGame()
             if (dynamic_cast<class Level5*>(level)) {
                 dynamic_cast<class Level5*>(level)->checkTrollAttack();
                 dynamic_cast<class Level5*>(level)->checkBatAttack();
-
+                dynamic_cast<class Level5*>(level)->checkCavemanAttack();
+                dynamic_cast<class Level5*>(level)->update();
             }
 
             for (QGraphicsItem* item : scene->items()) {

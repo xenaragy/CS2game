@@ -2,13 +2,11 @@
 #define LEVEL4_H
 
 #include "Level.h"
-#include "rewards.h"
-#include "message.h"
-#include "enemies.h"
 #include <QTimer>
 #include <QGraphicsTextItem>
 
-class Level4 : public Level {
+class Level4 : public Level
+{
     Q_OBJECT
 
 public:
@@ -17,52 +15,29 @@ public:
 
     void setupLevel() override;
     void resetLevel() override;
-    void addEnemies();
-
-    // Asteroid related methods
-    void startAsteroidAttack();
-    void spawnAsteroid();
+    void addEnemies() ;
     void checkAsteroidAttack();
-
-    // Timer control methods
-    void stopLevelTimer() {
-        if (levelTimer && levelTimer->isActive()) {
-            levelTimer->stop();
-        }
-        remainingTime = 90; // Reset to initial time
-    }
-
-    void pauseTimer() {
-        if (levelTimer && levelTimer->isActive()) {
-            levelTimer->stop();
-            timerPaused = true;
-        }
-    }
-
-    void resumeTimer() {
-        if (levelTimer && !levelTimer->isActive() && timerPaused) {
-            levelTimer->start(1000);
-            timerPaused = false;
-        }
-    }
-
+    void startAsteroidAttack();
     void stopAllTimers();
+    void initializeTimers();
+    void cleanupAllTimerDisplays();
+
+public slots:
+    void updateTimerDisplay();
+    void spawnAsteroid();
+    void spawnSpaceship();
+    void pauseTimer();
+    void resumeTimer();
 
 private:
-    // Timer related variables (declared once only)
-    QTimer* asteroidTimer;
     QTimer* levelTimer;
+    QTimer* asteroidTimer;
     QTimer* spaceshipTimer;
     QGraphicsTextItem* timerDisplay;
-
-    // State variables
-    bool asteroidAttackActive;
-    int remainingTime;  // in seconds
+    int remainingTime;
     bool timerPaused;
-
-    // Private methods
-    void spawnSpaceship();
-    void updateTimerDisplay();
+    bool asteroidAttackActive;
+    bool timersInitialized;
 };
 
 #endif // LEVEL4_H

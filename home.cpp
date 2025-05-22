@@ -138,6 +138,11 @@ void Home::setupUI()
 }
 
 void Home::startLevel(int levelNumber) {
+    static bool isCreatingWindow = false;
+    if (isCreatingWindow) {
+        return;
+    }
+    isCreatingWindow = true;
     if (gameWindow) {
         gameWindow->disconnect(this);
         gameWindow->deleteLater();
@@ -158,6 +163,7 @@ void Home::startLevel(int levelNumber) {
             }
         });
     }, Qt::QueuedConnection);
+
     connect(gameWindow, &MainWindow::levelOneCompleted, this, &Home::unlockLevel2, Qt::QueuedConnection);
     connect(gameWindow, &MainWindow::levelTwoCompleted, this, &Home::unlockLevel3, Qt::QueuedConnection);
     connect(gameWindow, &MainWindow::levelThreeCompleted, this, &Home::unlockLevel4, Qt::QueuedConnection);
@@ -165,6 +171,7 @@ void Home::startLevel(int levelNumber) {
     gameWindow->setLevel(levelNumber);
     gameWindow->show();
     this->hide();
+    isCreatingWindow = false;
 }
 
 void Home::startLevel1() {
